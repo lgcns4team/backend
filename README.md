@@ -9,7 +9,7 @@
 |기술 스택|Version|비고|
 |:---:|:---:|:---:|
 |Java|JDK 17||
-|Spring Server|Spring Boot 3.5.7|Gradle, Jar 사용|
+|Spring Server|Spring Boot 4.0.0|Gradle, Jar 사용|
 |Python|Python 3.11.0||
 |Python Server|Fast API 0.111.0||
 |DB|MariaDB 10.11.15|AWS 프리티어 동일|
