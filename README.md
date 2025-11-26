@@ -24,3 +24,21 @@
 
 ---
 
+## 스프링부트 관련 가이드
+<details>
+  <summary>YML Profiles 사용 방법</summary>
+  - Local, STG, Production 마다 필요한 YML 정보가 다르다.
+  - 해당 문제는 Profiles를 지정하여 특정 YML만 사용할 수 있다.
+  1. 1번 메뉴를 선택한다.
+  2-1. -Dspring.profiles.active=local (applicationXXX.yml의 XXX를 입력한다.)
+  2-2. 프로그램 인수 칸이 없다면 옵션 수정 -> VM 인수 추가를 누른다.
+  <img width="1920" height="1022" alt="profile설정" src="https://github.com/user-attachments/assets/03f5cdf6-aef4-4002-8bf4-7544d91e988e" />
+
+</details>
+  
+
+
+
+
+
+
