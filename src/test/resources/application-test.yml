@@ -1,7 +1,7 @@
 spring:
-  config:
-    activate:
-      on-profile: test
+#  config:
+#    activate:
+#      on-profile: test
   datasource:
 #    driver-class-name: ${DRIVER_NAME}
 #    url: ${DRIVER_URL}

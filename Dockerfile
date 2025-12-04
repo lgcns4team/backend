@@ -10,6 +10,5 @@ COPY ${JAR_FILE} ./
 
 # RUN은 이미지를 만들 때만 실행 됨 (한 번)
 RUN chmod +x /app/app.jar
-RUN ls -al /app
 
 ENTRYPOINT ["java", "-jar", "/app/app.jar"]
