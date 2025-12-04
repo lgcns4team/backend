@@ -1,0 +1,12 @@
+services:
+  mariadb:
+    image: mariadb:10.11.15
+    container_name: nok-nok-mariadb
+    ports:
+      - "3306:3306"
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+#      MARIADB_DATABASE: ${DB_DATABASE_NAME}
+      MARIADB_DATABASE: nok-nok
+      MARIADB_USER: #{DRIVER_USER_NAME}
+      MARIADB_PASSWORD: ${DRIVER_PASSWORD}
