@@ -36,8 +36,18 @@
      2-1. 프로그램 인수 칸이 없다면 옵션 수정 -> VM 인수 추가를 누른다.
   <img width="1920" height="1022" alt="profile설정" src="https://github.com/user-attachments/assets/03f5cdf6-aef4-4002-8bf4-7544d91e988e" />
 
+</details>
+
+<details>
   <summary>InteliJ 테스트에 Lombok 정상 작동 설정</summary>
-  test
+
+  - 테스트를 진행할 때 Lombok을 사용하지 못하는 경우가 있다.
+  - InteliJ에서 어노테이션 활성화를 체크해야 한다.
+
+  1. Ctrl + Alt + s로 설정으로 들어가서 검색란에 complie 검색
+  2. 어노테이션 처리 활성화 클릭
+<img width="1536" height="816" alt="어노테이션" src="https://github.com/user-attachments/assets/2d51f7d6-9fd7-49c8-8ddc-30fb2e38293e" />
+
 </details>
   
 
