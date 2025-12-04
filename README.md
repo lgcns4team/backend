@@ -26,7 +26,7 @@
 
 ## 스프링부트 관련 가이드
 <details>
-  <summary>YML Profiles 사용 방법</summary>
+  <summary>Local IDE YML Profiles 사용 방법</summary>
   
   - Local, STG, Production 마다 필요한 YML 정보가 다르다.
   - 해당 문제는 Profiles를 지정하여 특정 YML만 사용할 수 있다.
