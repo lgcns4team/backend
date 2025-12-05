@@ -26,8 +26,27 @@
 
 ## Redis
 <details>
+  <summary>Redis 사용 추천</summary>
   
-  <summary> Redis 설치 </summary> 
+  ```bash
+#도커로 레디스 7.0.15 컨테이너 실행
+$ docker run -d \
+  --name redis \
+  -p 6379:6379 \
+  redis:7.0.15
+$ docker ps
+ CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                                         NAMES
+ 0352f32cdaf6   redis:7.0.15   "docker-entrypoint.s…"   20 seconds ago   Up 20 seconds   0.0.0.0:6379->6379/tcp, [::]:6379->6379/tcp   redis
+
+#잘 작동하는지 도커에 들어가서 핑퐁 테스트
+$ docker exec -it redis redis-cli
+$ 127.0.0.1:6379> ping
+ PONG
+  ```
+</details>
+
+<details>
+  <summary> Redis 설치(Ubuntu / Debian 배포/운영 서버) 현재 비추천 </summary> 
   
 - WSL Ubuntu 환경 설치 및 실행 가이드
 ```bash
@@ -76,7 +95,6 @@ PONG
   1. Ctrl + Alt + s로 설정으로 들어가서 검색란에 complie 검색
   2. 어노테이션 처리 활성화 클릭
 <img width="1536" height="816" alt="어노테이션" src="https://github.com/user-attachments/assets/2d51f7d6-9fd7-49c8-8ddc-30fb2e38293e" />
-
 </details>
   
 
