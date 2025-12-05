@@ -24,9 +24,10 @@
 
 ---
 
+## Redis
 <details>
   
-  <summary> Redis </summary> 
+  <summary> Redis 설치 </summary> 
   
 - WSL Ubuntu 환경 설치 및 실행 가이드
 ```bash
