@@ -1,17 +1,14 @@
 spring:
-#  config:
+  config:
+    import: optional:file:.env[.properties]
 #    activate:
 #      on-profile: test
-  datasource:
-#    driver-class-name: ${DRIVER_NAME}
-#    url: ${DRIVER_URL}
-#    username: ${DRIVER_USER_NAME}
-#    password: ${DRIVER_PASSWORD}
 
-    driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://localhost:3306/nok_nok?characterEncoding=utf8&serverTimezone=UTC
-    username: root
-    password: zlasbsb12!
+  datasource:
+    driver-class-name: ${DRIVER_NAME}
+    url: ${DRIVER_URL}
+    username: ${DRIVER_USER_NAME}
+    password: ${DRIVER_PASSWORD}
 
     jpa:
       hibernate:
