@@ -96,10 +96,31 @@ PONG
   2. 어노테이션 처리 활성화 클릭
 <img width="1536" height="816" alt="어노테이션" src="https://github.com/user-attachments/assets/2d51f7d6-9fd7-49c8-8ddc-30fb2e38293e" />
 </details>
+
+
+## 🐛트러블 슈팅
+<details>
+  <summary>테스트 YML ENV 파일을 못 읽는 문제</summary>
   
+  ```grovy
+  $ Failed to load ApplicationContext for [WebMergedContextConfiguration@76fc5687 testClass = com.NOK_NOK.ApplicationTests, locations = [], classes = [com.NOK_NOK.Application], contextInitializerClasses = [], activeProfiles = ["test"], propertySourceDescriptors = [], propertySourceProperties = ["org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true"], contextCustomizers = [org.springframework.boot.micrometer.metrics.test.autoconfigure.MetricsContextCustomizerFactory$DisableMetricsExportContextCustomizer@1f, org.springframework.boot.webmvc.test.autoconfigure.WebDriverContextCustomizer@49b07ee3, org.springframework.boot.web.server.context.SpringBootTestRandomPortContextCustomizerFactory$Customizer@2424686b, org.springframework.boot.test.autoconfigure.OnFailureConditionReportContextCustomizerFactory$OnFailureConditionReportContextCustomizer@6e78fcf5, org.springframework.boot.test.context.PropertyMappingContextCustomizer@0, org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@417ad4f3, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@7ff2b8d2, org.springframework.test.context.support.DynamicPropertiesContextCustomizer@0, org.springframework.boot.test.context.SpringBootTestAnnotation@4a5aac2], resourceBasePath = "src/main/webapp", contextLoader = org.springframework.boot.test.context.SpringBootContextLoader, parent = null]
 
+ $ java.lang.IllegalStateException: Failed to load ApplicationContext for [WebMergedContextConfiguration@76fc5687 testClass = com.NOK_NOK.ApplicationTests, locations = [], classes = [com.NOK_NOK.Application], contextInitializerClasses = [], activeProfiles = ["test"], propertySourceDescriptors = [], propertySourceProperties = ["org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true"], contextCustomizers = [org.springframework.boot.micrometer.metrics.test.autoconfigure.MetricsContextCustomizerFactory$DisableMetricsExportContextCustomizer@1f, org.springframework.boot.webmvc.test.autoconfigure.WebDriverContextCustomizer@49b07ee3, org.springframework.boot.web.server.context.SpringBootTestRandomPortContextCustomizerFactory$Customizer@2424686b, org.springframework.boot.test.autoconfigure.OnFailureConditionReportContextCustomizerFactory$OnFailureConditionReportContextCustomizer@6e78fcf5, org.springframework.boot.test.context.PropertyMappingContextCustomizer@0, org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@417ad4f3, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@7ff2b8d2, org.springframework.test.context.support.DynamicPropertiesContextCustomizer@0, org.springframework.boot.test.context.SpringBootTestAnnotation@4a5aac2], resourceBasePath = "src/main/webapp", contextLoader = org.springframework.boot.test.context.SpringBootContextLoader, parent = null]
 
+# 정확한 원인
+ Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'dataSourceScriptDatabaseInitializer' defined in class path resource [org/springframework/boot/jdbc/autoconfigure/DataSourceInitializationAutoConfiguration.class]: Unsatisfied dependency expressed through method 'dataSourceScriptDatabaseInitializer' parameter 0: Error creating bean with name 'dataSource' defined in class path resource [org/springframework/boot/jdbc/autoconfigure/DataSourceConfiguration$Hikari.class]: Failed to instantiate [com.zaxxer.hikari.HikariDataSource]: Factory method 'dataSource' threw exception with message: Cannot load driver class: ${DRIVER_NAME}
+```
 
+  - 위에 로그는 수 많은 로그 중에 일부분을 가져왔다.
+  - 현재 testClass와 profiles를 application-test.yml을 사용하는 것을 알 수 있다.
+  - 마지막 Cause by를 보면 데이터베이스 작업 시작할 때 env로 설정한 환경변수 값이 없다는 문제이다.
 
-
-
+## 해결 방법
+- 해당 yml에 env 파일을 끌고 올 수 있게 한다.
+``` grovy
+# application-test.yml
+spring:
+  config:
+    import: optional:file:.env[.properties]
+```
+</details>
