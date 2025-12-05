@@ -24,6 +24,34 @@
 
 ---
 
+<details>
+  
+  <summary> Redis </summary> 
+  
+- WSL Ubuntu 환경 설치 및 실행 가이드
+```bash
+# 설치
+$ curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
+
+$ echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
+
+$ sudo apt-get update
+$ sudo apt-get install redis
+
+# 실행
+$ redis-server --daemonize yes
+
+# Redis 연결
+$ redis-cli
+
+# 연결 테스트
+127.0.0.1:6379> ping
+PONG
+```
+
+</details>
+
+
 ## 스프링부트 관련 가이드
 <details>
   <summary>Local 환경에서 IDE(InteliJ) YML Profiles</summary>
