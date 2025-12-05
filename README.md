@@ -111,6 +111,7 @@ PONG
  Caused by: org.springframework.beans.factory.UnsatisfiedDependencyException: Error creating bean with name 'dataSourceScriptDatabaseInitializer' defined in class path resource [org/springframework/boot/jdbc/autoconfigure/DataSourceInitializationAutoConfiguration.class]: Unsatisfied dependency expressed through method 'dataSourceScriptDatabaseInitializer' parameter 0: Error creating bean with name 'dataSource' defined in class path resource [org/springframework/boot/jdbc/autoconfigure/DataSourceConfiguration$Hikari.class]: Failed to instantiate [com.zaxxer.hikari.HikariDataSource]: Factory method 'dataSource' threw exception with message: Cannot load driver class: ${DRIVER_NAME}
 ```
 
+  - build를 실행하거나 Test 코드를 실행하면 발생하는 문제점이다.
   - 위에 로그는 수 많은 로그 중에 일부분을 가져왔다.
   - 현재 testClass와 profiles를 application-test.yml을 사용하는 것을 알 수 있다.
   - 마지막 Cause by를 보면 데이터베이스 작업 시작할 때 env로 설정한 환경변수 값이 없다는 문제이다.
