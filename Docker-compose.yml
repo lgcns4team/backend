@@ -1,7 +1,7 @@
 services:
   mariadb:
     image: mariadb:10.11.15
-    container_name: nok-nok-mariadb
+    container_name: mariadb
     ports:
       - "3306:3306"
     environment:
@@ -11,9 +11,40 @@ services:
       MARIADB_USER: ${DRIVER_USER_NAME}
       MARIADB_PASSWORD: ${DRIVER_PASSWORD}
     volumes:
-      - mariadb/var/lib/volumes
+      - mariadb/volumes
     healthcheck:
       test: ["CMD", "maria-admin", "ping", "-h", "localhost", "-u", "${DRIVER_USER_NAME}", "-p${DRIVER_PASSWORD}"]
       interval: 10s
       timeout: 5s
       retries: 5
+
+  # AOF는 Reids가 재시작해도 데이터 복구가 가능하며 데이터 유실이 없으며 AOF 로그 저장을 할 수 있다.
+  #단점은 aof 파일이 점점 커지며 모든 쓰기마다 I/O 작업이 발생한다.
+  #해당 프로젝트에서는 AOF 기능이 필요 없으니 제외
+  redis:
+    image: redis:7.0.15
+    container_name: redis
+    ports:
+      - "6379:6379"
+#    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
+    volumes:
+      - redis:/data
+    restart: always
+
+  backend:
+    image: stayonasdev/nok-nok/spring-boot-docker:0.1.0
+    ports:
+      - "8080:8080"
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: always
+    deploy:
+      mode: replicated
+      replicas: 1
+
+volumes:
+  mariadb_data:
+  redis_data:
