@@ -1,14 +1,11 @@
 package com.NOK_NOK.order.service;
 
-import com.NOK_NOK.order.domain.dto.MenuRequest;
-import com.NOK_NOK.order.domain.dto.MenuResponse;
-import com.NOK_NOK.order.domain.entity.Category;
-import com.NOK_NOK.order.domain.entity.MenuItem;
-import com.NOK_NOK.order.exceptions.CategoryNotFoundException;
-import com.NOK_NOK.order.exceptions.DuplicateMenuNameException;
-import com.NOK_NOK.order.exceptions.MenuNotFoundException;
+import com.NOK_NOK.order.domain.dto.MenuRequestDto;
+import com.NOK_NOK.order.domain.dto.MenuResponseDto;
+import com.NOK_NOK.order.domain.entity.CategoryEntity;
+import com.NOK_NOK.order.domain.entity.MenuItemEntity;
 import com.NOK_NOK.order.repository.CategoryRepository;
-import com.NOK_NOK.order.repository.MenuRepository;
+import com.NOK_NOK.order.repository.MenuItemRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -18,197 +15,140 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-@Slf4j
 public class MenuService {
-
-    private final MenuRepository menuRepository;
+    
+    private final MenuItemRepository menuItemRepository;
     private final CategoryRepository categoryRepository;
-
+    
     /**
-     * 메뉴 목록 조회 (페이징, 필터링)
+     * 전체 카테고리 목록 조회
      */
-    public MenuResponse.MenuPage getMenus(MenuRequest.Search request) {
-        log.debug("메뉴 목록 조회 시작 - 카테고리ID: {}, 키워드: {}", 
-                request.getCategoryId(), request.getKeyword());
-
-        // 정렬 설정
-        Sort.Direction direction = "DESC".equalsIgnoreCase(request.getSortDirection()) 
-                ? Sort.Direction.DESC : Sort.Direction.ASC;
-        Pageable pageable = PageRequest.of(
-                request.getPage(), 
-                request.getSize(), 
-                Sort.by(direction, request.getSortBy())
+    public MenuResponseDto.CategoryList getAllCategories() {
+        log.info("Fetching all categories");
+        
+        List<CategoryEntity> categories = categoryRepository.findAllByOrderByDisplayOrderAsc();
+        
+        List<MenuResponseDto.CategoryInfo> categoryInfoList = categories.stream()
+            .map(this::convertToCategoryInfo)
+            .collect(Collectors.toList());
+        
+        return MenuResponseDto.CategoryList.builder()
+            .categories(categoryInfoList)
+            .build();
+    }
+    
+    /**
+     * 조건별 메뉴 검색 (페이지네이션)
+     */
+    public MenuResponseDto.MenuPage searchMenus(MenuRequestDto.Search request) {
+        log.info("Searching menus with conditions - categoryId: {}, keyword: {}, isActive: {}, page: {}, size: {}", 
+                 request.getCategoryId(), request.getKeyword(), request.getIsActive(), 
+                 request.getPage(), request.getSize());
+        
+        // Pageable 객체 생성
+        Pageable pageable = createPageable(request);
+        
+        // 메뉴 검색
+        Page<MenuItemEntity> menuPage = menuItemRepository.searchMenus(
+            request.getCategoryId(),
+            request.getIsActive(),
+            request.getKeyword(),
+            pageable
         );
-
-        Page<MenuItem> menuPage;
-
-        // 조건에 따른 조회
-        if (request.getCategoryId() != null && request.getKeyword() != null && !request.getKeyword().isBlank()) {
-            // 카테고리 + 키워드 검색
-            menuPage = menuRepository.searchByCategoryAndKeyword(
-                    request.getCategoryId(), request.getKeyword(), pageable);
-        } else if (request.getCategoryId() != null) {
-            // 카테고리별 조회
-            menuPage = menuRepository.findByCategoryCategoryId(request.getCategoryId(), pageable);
-        } else if (request.getKeyword() != null && !request.getKeyword().isBlank()) {
-            // 키워드 검색
-            menuPage = menuRepository.searchByKeyword(request.getKeyword(), pageable);
-        } else {
-            // 전체 조회
-            menuPage = menuRepository.findAll(pageable);
-        }
-
-        log.debug("메뉴 {} 개 조회 완료 (전체: {})", menuPage.getContent().size(), menuPage.getTotalElements());
-
-        // Response 변환
-        List<MenuResponse.MenuList> menuList = menuPage.getContent().stream()
-                .map(MenuResponse.MenuList::from)
-                .collect(Collectors.toList());
-
-        return MenuResponse.MenuPage.builder()
-                .content(menuList)
-                .pageNumber(menuPage.getNumber())
-                .pageSize(menuPage.getSize())
-                .totalElements(menuPage.getTotalElements())
-                .totalPages(menuPage.getTotalPages())
-                .isLast(menuPage.isLast())
-                .isFirst(menuPage.isFirst())
-                .build();
+        
+        // 카테고리 정보를 미리 조회 (N+1 방지)
+        Map<Long, String> categoryNameMap = getCategoryNameMap();
+        
+        // DTO 변환
+        List<MenuResponseDto.MenuDetail> menuDetails = menuPage.getContent().stream()
+            .map(menu -> convertToMenuDetail(menu, categoryNameMap))
+            .collect(Collectors.toList());
+        
+        return MenuResponseDto.MenuPage.builder()
+            .content(menuDetails)
+            .currentPage(menuPage.getNumber())
+            .totalPages(menuPage.getTotalPages())
+            .totalElements(menuPage.getTotalElements())
+            .size(menuPage.getSize())
+            .hasNext(menuPage.hasNext())
+            .hasPrevious(menuPage.hasPrevious())
+            .build();
     }
-
+    
     /**
-     * 메뉴 상세 조회
+     * 특정 메뉴 상세 조회
      */
-    public MenuResponse.MenuDetail getMenuDetail(Long menuId) {
-        log.debug("메뉴 상세 조회 시작 - ID: {}", menuId);
-
-        // MenuItem menuItem = menuRepository.findByIdWithOptions(menuId)
-                // .orElseThrow(() -> new MenuNotFoundException("메뉴를 찾을 수 없습니다. ID: " + menuId));
-        log.info("히히 파인드바이메뉴");
-        MenuItem menuItem = menuRepository.findById(menuId).get();
-
-        log.info("메뉴 상세 조회 시작");
-        // log.debug("메뉴 상세 조회 완료 - 이름: {}, 옵션 그룹 개수: {}", 
-        //         menuItem.getName(), menuItem.getOptionGroups().size());
-
-        return MenuResponse.MenuDetail.from(menuItem);
+    public MenuResponseDto.MenuDetail getMenuById(Long menuId) {
+        log.info("Fetching menu detail - menuId: {}", menuId);
+        
+        MenuItemEntity menuItem = menuItemRepository.findById(menuId)
+            .orElseThrow(() -> new IllegalArgumentException("Menu not found with id: " + menuId));
+        
+        Map<Long, String> categoryNameMap = getCategoryNameMap();
+        
+        return convertToMenuDetail(menuItem, categoryNameMap);
     }
-
+    
     /**
-     * 추천 메뉴 조회
+     * Pageable 객체 생성
      */
-    public MenuResponse.RecommendedMenu getRecommendedMenus(MenuRequest.Recommend request) {
-        log.debug("추천 메뉴 조회 시작 - 연령대: {}, 성별: {}, 시간대: {}", 
-                request.getAgeGroup(), request.getGender(), request.getTimeSlot());
-
-        // TODO: 연령대, 성별, 시간대 기반 추천 알고리즘 구현
-        // 현재는 최신 메뉴를 반환
-        Pageable pageable = PageRequest.of(0, request.getLimit());
-        List<MenuItem> menuItems = menuRepository.findRecommendedMenus(pageable);
-
-        String reason;
-        if (request.getAgeGroup() != null || request.getGender() != null || request.getTimeSlot() != null) {
-            reason = String.format("연령대(%s), 성별(%s), 시간대(%s) 기반 추천 (추후 알고리즘 구현 예정)", 
-                    request.getAgeGroup(), request.getGender(), request.getTimeSlot());
-        } else {
-            reason = "기본 추천 메뉴";
-        }
-
-        log.debug("추천 메뉴 {} 개 조회 완료", menuItems.size());
-
-        List<MenuResponse.MenuList> menuList = menuItems.stream()
-                .map(MenuResponse.MenuList::from)
-                .collect(Collectors.toList());
-
-        return MenuResponse.RecommendedMenu.builder()
-                .menus(menuList)
-                .reason(reason)
-                .timestamp(LocalDateTime.now())
-                .build();
+    private Pageable createPageable(MenuRequestDto.Search request) {
+        Sort sort = Sort.by(
+            "DESC".equalsIgnoreCase(request.getSortDirection()) 
+                ? Sort.Direction.DESC 
+                : Sort.Direction.ASC,
+            request.getSortBy()
+        );
+        
+        return PageRequest.of(request.getPage(), request.getSize(), sort);
     }
-
+    
     /**
-     * 메뉴 생성
+     * 카테고리 ID -> 이름 매핑 생성
      */
-    @Transactional
-    public MenuResponse.MenuDetail createMenu(MenuRequest.Create request) {
-        log.info("메뉴 생성 시작 - 이름: {}, 카테고리ID: {}", request.getName(), request.getCategoryId());
-
-        // 카테고리 존재 확인
-        Category category = categoryRepository.findById(request.getCategoryId())
-                .orElseThrow(() -> new CategoryNotFoundException("카테고리를 찾을 수 없습니다. ID: " + request.getCategoryId()));
-
-        // 중복 체크
-        if (menuRepository.existsByCategoryCategoryIdAndName(request.getCategoryId(), request.getName())) {
-            throw new DuplicateMenuNameException("해당 카테고리에 이미 존재하는 메뉴명입니다: " + request.getName());
+    private Map<Long, String> getCategoryNameMap() {
+        List<CategoryEntity> categories = categoryRepository.findAll();
+        Map<Long, String> categoryNameMap = new HashMap<>();
+        
+        for (CategoryEntity category : categories) {
+            categoryNameMap.put(category.getCategoryId(), category.getName());
         }
-
-        MenuItem menuItem = MenuItem.builder()
-                .category(category)
-                .name(request.getName())
-                .price(request.getPrice())
-                .imageUrl(request.getImageUrl())
-                .build();
-
-        MenuItem savedMenuItem = menuRepository.save(menuItem);
-        log.info("메뉴 생성 완료 - ID: {}, 이름: {}", savedMenuItem.getMenuId(), savedMenuItem.getName());
-
-        return MenuResponse.MenuDetail.from(savedMenuItem);
+        
+        return categoryNameMap;
     }
-
+    
     /**
-     * 메뉴 수정
+     * Entity -> CategoryInfo DTO 변환
      */
-    @Transactional
-    public MenuResponse.MenuDetail updateMenu(Long menuId, MenuRequest.Update request) {
-        log.info("메뉴 수정 시작 - ID: {}", menuId);
-
-        MenuItem menuItem = menuRepository.findById(menuId)
-                .orElseThrow(() -> new MenuNotFoundException("메뉴를 찾을 수 없습니다. ID: " + menuId));
-
-        // 카테고리 변경
-        if (request.getCategoryId() != null && !request.getCategoryId().equals(menuItem.getCategory().getCategoryId())) {
-            Category newCategory = categoryRepository.findById(request.getCategoryId())
-                    .orElseThrow(() -> new CategoryNotFoundException("카테고리를 찾을 수 없습니다. ID: " + request.getCategoryId()));
-            menuItem.updateCategory(newCategory);
-        }
-
-        // 이름 변경 시 중복 체크
-        if (request.getName() != null && !request.getName().equals(menuItem.getName())) {
-            Long targetCategoryId = request.getCategoryId() != null ? 
-                    request.getCategoryId() : menuItem.getCategory().getCategoryId();
-            
-            if (menuRepository.existsByCategoryIdAndNameAndMenuIdNot(targetCategoryId, request.getName(), menuId)) {
-                throw new DuplicateMenuNameException("해당 카테고리에 이미 존재하는 메뉴명입니다: " + request.getName());
-            }
-        }
-
-        // 정보 업데이트
-        menuItem.updateInfo(request.getName(), request.getPrice(), request.getImageUrl());
-
-        log.info("메뉴 수정 완료 - ID: {}, 이름: {}", menuItem.getMenuId(), menuItem.getName());
-
-        return MenuResponse.MenuDetail.from(menuItem);
+    private MenuResponseDto.CategoryInfo convertToCategoryInfo(CategoryEntity category) {
+        return MenuResponseDto.CategoryInfo.builder()
+            .categoryId(category.getCategoryId())
+            .name(category.getName())
+            .displayOrder(category.getDisplayOrder())
+            .build();
     }
-
+    
     /**
-     * 메뉴 삭제
+     * Entity -> MenuDetail DTO 변환
      */
-    @Transactional
-    public void deleteMenu(Long menuId) {
-        log.info("메뉴 삭제 시작 - ID: {}", menuId);
-
-        MenuItem menuItem = menuRepository.findById(menuId)
-                .orElseThrow(() -> new MenuNotFoundException("메뉴를 찾을 수 없습니다. ID: " + menuId));
-
-        menuRepository.delete(menuItem);
-        log.info("메뉴 삭제 완료 - ID: {}", menuId);
+    private MenuResponseDto.MenuDetail convertToMenuDetail(MenuItemEntity menuItem, Map<Long, String> categoryNameMap) {
+        return MenuResponseDto.MenuDetail.builder()
+            .menuId(menuItem.getMenuId())
+            .categoryId(menuItem.getCategoryId())
+            .categoryName(categoryNameMap.get(menuItem.getCategoryId()))
+            .name(menuItem.getName())
+            .price(menuItem.getPrice())
+            .isActive(menuItem.getIsActive())
+            .imageUrl(menuItem.getImageUrl())
+            .build();
     }
 }
