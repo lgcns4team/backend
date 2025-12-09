@@ -6,7 +6,7 @@ FROM eclipse-temurin:17-jdk-alpine
 WORKDIR /app
 
 ARG JAR_FILE=build/libs/*.jar
-COPY ${JAR_FILE} ./
+COPY ${JAR_FILE} app.jar
 
 # RUN은 이미지를 만들 때만 실행 됨 (한 번)
 RUN chmod +x /app/app.jar

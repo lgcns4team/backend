@@ -5,13 +5,13 @@ services:
     ports:
       - "3306:3306"
     environment:
-      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+      MARIADB_ROOT_PASSWORD: ${DB_COMPOSE_ROOT_PASSWORD}
 #      MARIADB_DATABASE: ${DB_DATABASE_NAME}
-      MARIADB_DATABASE: nok-nok
-      MARIADB_USER: ${DRIVER_USER_NAME}
+      MARIADB_DATABASE: nok_nok
+      MARIADB_USER: ${DB_COMPOSE_USER}
       MARIADB_PASSWORD: ${DRIVER_PASSWORD}
     volumes:
-      - mariadb/volumes
+      - mariadb:/volumes
     healthcheck:
       test: ["CMD", "maria-admin", "ping", "-h", "localhost", "-u", "${DRIVER_USER_NAME}", "-p${DRIVER_PASSWORD}"]
       interval: 10s
@@ -28,13 +28,18 @@ services:
       - "6379:6379"
 #    command: ["redis-server", "--appendonly", "yes", "--appendfsync", "everysec"]
     volumes:
-      - redis:/data
+      - redis:/volumes
     restart: always
 
   backend:
     image: stayonasdev/nok-nok/spring-boot-docker:0.1.0
+    env_file:
+      - .env
     ports:
       - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/nok_nok
+      SPRING_PROFILES_ACTIVE: dev
     depends_on:
       mariadb:
         condition: service_healthy
@@ -44,7 +49,14 @@ services:
     deploy:
       mode: replicated
       replicas: 1
+      resources:
+        limits:
+          cpus: '1'
+          memory: 3000M
+        reservations:
+          cpus: '0.01'
+          memory: 1024M
 
 volumes:
-  mariadb_data:
-  redis_data:
+  mariadb:
+  redis:
