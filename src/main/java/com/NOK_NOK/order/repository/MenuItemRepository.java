@@ -1,7 +1,6 @@
 package com.NOK_NOK.order.repository;
 
 import com.NOK_NOK.order.domain.entity.MenuItemEntity;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

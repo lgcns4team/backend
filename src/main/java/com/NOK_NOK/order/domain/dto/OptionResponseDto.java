@@ -20,6 +20,9 @@ public class OptionResponseDto {
      * 메뉴 옵션 조회 응답
      * 
      * API: GET /api/menus/{menuId}/options
+     * 
+     * 프론트엔드에서 가격 계산:
+     * totalPrice = basePrice + sum(선택한 옵션들의 optionPrice)
      */
     @Getter
     @Builder
@@ -98,42 +101,6 @@ public class OptionResponseDto {
                     .name(optionItem.getName())
                     .optionPrice(optionItem.getOptionPrice())
                     .build();
-        }
-    }
-
-    /**
-     * 가격 계산 응답
-     * 
-     * API: POST /api/menus/{menuId}/options/calculate
-     */
-    @Getter
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class PriceCalculation {
-
-        private Long menuId;
-        private String menuName;
-        private Integer basePrice;
-        private Integer optionPrice;
-        private Integer totalPrice;
-        private List<SelectedOptionInfo> selectedOptions;
-        private Boolean isValid;
-        private String errorMessage;
-
-        /**
-         * 선택된 옵션 정보
-         */
-        @Getter
-        @Builder
-        @NoArgsConstructor
-        @AllArgsConstructor
-        public static class SelectedOptionInfo {
-
-            private Long optionItemId;
-            private String optionGroupName;
-            private String optionName;
-            private Integer additionalPrice;
         }
     }
 }

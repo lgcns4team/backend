@@ -1,10 +1,9 @@
 package com.NOK_NOK.order.domain.dto;
 
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.List;
 
@@ -14,36 +13,55 @@ import java.util.List;
 public class OptionRequestDto {
 
     /**
-     * 가격 계산 요청
+     * 옵션 조회 요청
      * 
-     * API: POST /api/menus/{menuId}/options/calculate
+     * API: GET /api/menus/{menuId}/options
      * 
-     * 요청 예시:
-     * {
-     *   "menuId": 1,
-     *   "selectedOptionIds": [2, 4, 6]
-     * }
+     * 현재는 파라미터 없이 사용하지만,
+     * 나중에 필터링 기능 추가 시 사용
+     * 
+     * 사용 예시:
+     * GET /api/menus/1/options
+     * GET /api/menus/1/options?includeInactive=true
+     * GET /api/menus/1/options?onlyRequired=true
+     * GET /api/menus/1/options?storeId=1
      */
     @Getter
+    @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class PriceCalculation {
+    public static class OptionQuery {
 
         /**
-         * 메뉴 ID
-         */
-        @NotNull(message = "메뉴 ID는 필수입니다")
-        private Long menuId;
-
-        /**
-         * 선택한 옵션 ID 목록
+         * 비활성 옵션 포함 여부
+         * 기본값: false (활성 옵션만)
          * 
-         * 예: [2, 4, 6]
-         * - 2: Large (+500원)
-         * - 4: 얼음 보통 (0원)
-         * - 6: 샷 1개 추가 (+500원)
+         * 예: 관리자 화면에서는 true
          */
-        @NotEmpty(message = "선택된 옵션이 없습니다")
-        private List<Long> selectedOptionIds;
+        private Boolean includeInactive = false;
+
+        /**
+         * 필수 옵션만 조회
+         * 기본값: false (전체 조회)
+         * 
+         * 예: 빠른 주문 화면에서는 true
+         */
+        private Boolean onlyRequired = false;
+
+        /**
+         * 특정 옵션 그룹만 조회
+         * 기본값: null (전체 조회)
+         * 
+         * 예: groupIds=1,3 → 그룹 1, 3만 조회
+         */
+        private List<Long> groupIds;
+
+        /**
+         * 매장 ID
+         * 기본값: null (전체 매장)
+         * 
+         * 예: 매장별로 다른 옵션 제공 시 사용
+         */
+        private Long storeId;
     }
 }
