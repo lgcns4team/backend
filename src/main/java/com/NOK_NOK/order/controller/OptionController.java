@@ -2,6 +2,8 @@ package com.NOK_NOK.order.controller;
 
 import com.NOK_NOK.order.domain.dto.OptionResponseDto;
 import com.NOK_NOK.order.service.OptionService;
+
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -43,6 +45,7 @@ public class OptionController {
      * @param menuId 메뉴 ID
      * @return 메뉴 옵션 정보
      */
+    @Operation(summary = "메뉴 옵션 조회", description = "특정 메뉴의 옵션들을 조회합니다.")
     @GetMapping("/{menuId}/options")
     public ResponseEntity<OptionResponseDto.MenuOptionDetail> getMenuOptions(
             @PathVariable("menuId") Long menuId) {

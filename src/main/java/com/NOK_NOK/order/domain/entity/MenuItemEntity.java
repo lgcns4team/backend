@@ -25,47 +25,25 @@ public class MenuItemEntity {
     @Column(name = "menu_id")
     private Long menuId;
 
-    /**
-     * 카테고리 ID
-     * 
-     * ⚠️ 현재는 FK 관계 없이 Long만 저장
-     * → Category 담당자가 개발 완료하면 @ManyToOne으로 변경
-     */
-    @Column(name = "category_id")
+    @Column(name = "category_id", nullable = false)
     private Long categoryId;
 
-    /**
-     * 메뉴 이름
-     * 예: "아메리카노", "카페라떼"
-     */
     @Column(name = "name", nullable = false, length = 50)
     private String name;
 
-    /**
-     * 기본 가격 (옵션 제외)
-     * 예: 아메리카노 4000원
-     */
     @Column(name = "price", nullable = false)
     private Integer price;
 
-    /**
-     * 판매 여부
-     * 1: 판매 중, 0: 판매 중지
-     */
     @Column(name = "is_active", nullable = false)
     private Boolean isActive;
 
-    /**
-     * 이미지 URL
-     */
     @Column(name = "image_url", length = 255)
     private String imageUrl;
 
-    /**
-     * 옵션 그룹 목록
-     * 
-     * 예: 아메리카노 → [사이즈, 얼음량, 샷 추가]
-     */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id", insertable = false, updatable = false)
+    private CategoryEntity category;
+
     @OneToMany(mappedBy = "menuItem", cascade = CascadeType.ALL)
     @Builder.Default
     private List<OptionGroupEntity> optionGroups = new ArrayList<>();
