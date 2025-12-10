@@ -8,6 +8,11 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
+/**
+ * MenuItem Repository
+ */
 @Repository
 public interface MenuItemRepository extends JpaRepository<MenuItemEntity, Long> {
 
@@ -33,4 +38,14 @@ public interface MenuItemRepository extends JpaRepository<MenuItemEntity, Long> 
             @Param("isActive") Boolean isActive,
             @Param("keyword") String keyword,
             Pageable pageable);
+            
+    /* 메뉴와 옵션 그룹을 함께 조회
+     * 
+     * DISTINCT 추가로 MultipleBagFetchException 해결
+     * 옵션 아이템은 LAZY 로딩으로 자동 조회됨
+     */
+    @Query("SELECT DISTINCT m FROM MenuItemEntity m " +
+            "LEFT JOIN FETCH m.optionGroups " +
+            "WHERE m.menuId = :menuId")
+    Optional<MenuItemEntity> findByIdWithOptions(@Param("menuId") Long menuId);
 }
