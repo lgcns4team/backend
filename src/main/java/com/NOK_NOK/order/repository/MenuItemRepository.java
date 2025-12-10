@@ -29,7 +29,7 @@ public interface MenuItemRepository extends JpaRepository<MenuItemEntity, Long> 
     /**
      * 키워드 검색 (메뉴명)
      */
-    @Query("SELECT m FROM MenuItem m WHERE " +
+    @Query("SELECT m FROM MenuItemEntity m WHERE " +
             "(:categoryId IS NULL OR m.categoryId = :categoryId) AND " +
             "(:isActive IS NULL OR m.isActive = :isActive) AND " +
             "(:keyword IS NULL OR m.name LIKE %:keyword%)")

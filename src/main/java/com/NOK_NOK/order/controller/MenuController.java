@@ -24,15 +24,15 @@ public class MenuController {
      * 전체 카테고리 목록 조회
      * GET /api/categories
      */
-    @Operation(summary = "카테고리 목록 조회", description = "전체 카테고리 목록을 display_order 순으로 조회합니다.")
-    @GetMapping("/categories")
-    public ResponseEntity<MenuResponseDto.CategoryList> getAllCategories() {
-        log.info("GET /api/categories - Fetch all categories");
+    // @Operation(summary = "카테고리 목록 조회", description = "전체 카테고리 목록을 display_order 순으로 조회합니다.")
+    // @GetMapping("/categories")
+    // public ResponseEntity<MenuResponseDto.CategoryList> getAllCategories() {
+    //     log.info("GET /api/categories - Fetch all categories");
         
-        MenuResponseDto.CategoryList response = menuService.getAllCategories();
+    //     MenuResponseDto.CategoryList response = menuService.getAllCategories();
         
-        return ResponseEntity.ok(response);
-    }
+    //     return ResponseEntity.ok(response);
+    // }
     
     /**
      * 메뉴 검색 (조건 + 페이지네이션)
@@ -91,22 +91,22 @@ public class MenuController {
         return ResponseEntity.ok(response);
     }
     
-    /**
-     * 특정 메뉴 상세 조회
-     * GET /api/menus/{menuId}
-     * 
-     * @param menuId 메뉴 ID
-     */
-    @Operation(summary = "메뉴 상세 조회", description = "특정 메뉴의 상세 정보를 조회합니다.")
-    @GetMapping("/menus/{menuId}")
-    public ResponseEntity<MenuResponseDto.MenuDetail> getMenuById(
-        @Parameter(description = "메뉴 ID", example = "1", required = true)
-        @PathVariable(name = "menuId") Long menuId
-    ) {
-        log.info("GET /api/menus/{} - Fetch menu detail", menuId);
+    // /**
+    //  * 특정 메뉴 상세 조회
+    //  * GET /api/menus/{menuId}
+    //  * 
+    //  * @param menuId 메뉴 ID
+    //  */
+    // @Operation(summary = "메뉴 상세 조회", description = "특정 메뉴의 상세 정보를 조회합니다.")
+    // @GetMapping("/menus/{menuId}")
+    // public ResponseEntity<MenuResponseDto.MenuDetail> getMenuById(
+    //     @Parameter(description = "메뉴 ID", example = "1", required = true)
+    //     @PathVariable(name = "menuId") Long menuId
+    // ) {
+    //     log.info("GET /api/menus/{} - Fetch menu detail", menuId);
         
-        MenuResponseDto.MenuDetail response = menuService.getMenuById(menuId);
+    //     MenuResponseDto.MenuDetail response = menuService.getMenuById(menuId);
         
-        return ResponseEntity.ok(response);
-    }
+    //     return ResponseEntity.ok(response);
+    // }
 }
