@@ -41,7 +41,7 @@ public interface OptionItemRepository extends JpaRepository<OptionItemEntity, Lo
      * 추천 메뉴 기능에서 사용 예정
      * 
      * @param menuId 메뉴 ID
-     * @param limit 조회 개수
+     * @param limit  조회 개수
      * @return 인기 옵션 목록
      */
     // TODO: 나중에 구현

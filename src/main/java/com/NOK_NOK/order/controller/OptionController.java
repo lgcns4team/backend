@@ -36,10 +36,10 @@ public class OptionController {
      * 
      * 응답:
      * {
-     *   "menuId": 1,
-     *   "menuName": "아메리카노",
-     *   "basePrice": 4000,
-     *   "optionGroups": [...]
+     * "menuId": 1,
+     * "menuName": "아메리카노",
+     * "basePrice": 4000,
+     * "optionGroups": [...]
      * }
      * 
      * @param menuId 메뉴 ID

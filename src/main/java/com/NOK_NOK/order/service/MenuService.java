@@ -8,13 +8,11 @@ import com.NOK_NOK.order.repository.CategoryRepository;
 import com.NOK_NOK.order.repository.MenuItemRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,130 +23,104 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class MenuService {
-    
+
     private final MenuItemRepository menuItemRepository;
     private final CategoryRepository categoryRepository;
-    
+
     /**
-     * 전체 카테고리 목록 조회
+     * 키오스크용: 전체 카테고리와 각 카테고리별 메뉴 조회
+     * 활성화된 메뉴만 조회
      */
-    public MenuResponseDto.CategoryList getAllCategories() {
-        log.info("Fetching all categories");
-        
+    public MenuResponseDto.CategoriesWithMenus getCategoriesWithMenusForKiosk() {
+        log.info("Fetching categories with menus for kiosk");
+
+        // 1. 전체 카테고리 조회 (display_order 순)
         List<CategoryEntity> categories = categoryRepository.findAllByOrderByDisplayOrderAsc();
-        
-        List<MenuResponseDto.CategoryInfo> categoryInfoList = categories.stream()
-            .map(this::convertToCategoryInfo)
-            .collect(Collectors.toList());
-        
-        return MenuResponseDto.CategoryList.builder()
-            .categories(categoryInfoList)
-            .build();
-    }
-    
-    /**
-     * 조건별 메뉴 검색 (페이지네이션)
-     */
-    public MenuResponseDto.MenuPage searchMenus(MenuRequestDto.Search request) {
-        log.info("Searching menus with conditions - categoryId: {}, keyword: {}, isActive: {}, page: {}, size: {}", 
-                 request.getCategoryId(), request.getKeyword(), request.getIsActive(), 
-                 request.getPage(), request.getSize());
-        
-        // Pageable 객체 생성
-        Pageable pageable = createPageable(request);
-        
-        // 메뉴 검색
-        Page<MenuItemEntity> menuPage = menuItemRepository.searchMenus(
-            request.getCategoryId(),
-            request.getIsActive(),
-            request.getKeyword(),
-            pageable
-        );
-        
-        // 카테고리 정보를 미리 조회 (N+1 방지)
-        Map<Long, String> categoryNameMap = getCategoryNameMap();
-        
-        // DTO 변환
-        List<MenuResponseDto.MenuDetail> menuDetails = menuPage.getContent().stream()
-            .map(menu -> convertToMenuDetail(menu, categoryNameMap))
-            .collect(Collectors.toList());
-        
-        return MenuResponseDto.MenuPage.builder()
-            .content(menuDetails)
-            .currentPage(menuPage.getNumber())
-            .totalPages(menuPage.getTotalPages())
-            .totalElements(menuPage.getTotalElements())
-            .size(menuPage.getSize())
-            .hasNext(menuPage.hasNext())
-            .hasPrevious(menuPage.hasPrevious())
-            .build();
-    }
-    
-    /**
-     * 특정 메뉴 상세 조회
-     */
-    public MenuResponseDto.MenuDetail getMenuById(Long menuId) {
-        log.info("Fetching menu detail - menuId: {}", menuId);
-        
-        MenuItemEntity menuItem = menuItemRepository.findById(menuId)
-            .orElseThrow(() -> new IllegalArgumentException("Menu not found with id: " + menuId));
-        
-        Map<Long, String> categoryNameMap = getCategoryNameMap();
-        
-        return convertToMenuDetail(menuItem, categoryNameMap);
-    }
-    
-    /**
-     * Pageable 객체 생성
-     */
-    private Pageable createPageable(MenuRequestDto.Search request) {
-        Sort sort = Sort.by(
-            "DESC".equalsIgnoreCase(request.getSortDirection()) 
-                ? Sort.Direction.DESC 
-                : Sort.Direction.ASC,
-            request.getSortBy()
-        );
-        
-        return PageRequest.of(request.getPage(), request.getSize(), sort);
-    }
-    
-    /**
-     * 카테고리 ID -> 이름 매핑 생성
-     */
-    private Map<Long, String> getCategoryNameMap() {
-        List<CategoryEntity> categories = categoryRepository.findAll();
-        Map<Long, String> categoryNameMap = new HashMap<>();
-        
+
+        // 2. 카테고리별로 활성화된 메뉴 조회
+        int maxMenuCount = 0;
+        List<MenuResponseDto.CategoryWithMenus> categoryWithMenusList = new ArrayList<>();
+
         for (CategoryEntity category : categories) {
-            categoryNameMap.put(category.getCategoryId(), category.getName());
+            // 해당 카테고리의 활성화된 메뉴만 조회
+            List<MenuItemEntity> menus = menuItemRepository.findByCategoryIdAndIsActive(
+                    category.getCategoryId(),
+                    true,
+                    Sort.by(Sort.Direction.ASC, "menuId"));
+
+            // 메뉴 DTO 변환
+            List<MenuResponseDto.MenuDetail> menuDetails = menus.stream()
+                    .map(menu -> MenuResponseDto.MenuDetail.builder()
+                            .menuId(menu.getMenuId())
+                            .categoryId(menu.getCategoryId())
+                            .categoryName(category.getName())
+                            .name(menu.getName())
+                            .price(menu.getPrice())
+                            .isActive(menu.getIsActive())
+                            .imageUrl(menu.getImageUrl())
+                            .build())
+                    .collect(Collectors.toList());
+
+            // 최대 메뉴 개수 갱신
+            if (menuDetails.size() > maxMenuCount) {
+                maxMenuCount = menuDetails.size();
+            }
+
+            // 카테고리별 메뉴 그룹 생성
+            categoryWithMenusList.add(
+                    MenuResponseDto.CategoryWithMenus.builder()
+                            .categoryId(category.getCategoryId())
+                            .categoryName(category.getName())
+                            .displayOrder(category.getDisplayOrder())
+                            .menus(menuDetails)
+                            .menuCount(menuDetails.size())
+                            .build());
         }
-        
-        return categoryNameMap;
+
+        return MenuResponseDto.CategoriesWithMenus.builder()
+                .categories(categoryWithMenusList)
+                .totalCategories(categoryWithMenusList.size())
+                .maxMenusPerCategory(maxMenuCount)
+                .build();
     }
-    
+
     /**
-     * Entity -> CategoryInfo DTO 변환
+     * 키오스크용: 특정 카테고리의 메뉴만 조회
+     * 
+     * @param categoryId 카테고리 ID
      */
-    private MenuResponseDto.CategoryInfo convertToCategoryInfo(CategoryEntity category) {
-        return MenuResponseDto.CategoryInfo.builder()
-            .categoryId(category.getCategoryId())
-            .name(category.getName())
-            .displayOrder(category.getDisplayOrder())
-            .build();
-    }
-    
-    /**
-     * Entity -> MenuDetail DTO 변환
-     */
-    private MenuResponseDto.MenuDetail convertToMenuDetail(MenuItemEntity menuItem, Map<Long, String> categoryNameMap) {
-        return MenuResponseDto.MenuDetail.builder()
-            .menuId(menuItem.getMenuId())
-            .categoryId(menuItem.getCategoryId())
-            .categoryName(categoryNameMap.get(menuItem.getCategoryId()))
-            .name(menuItem.getName())
-            .price(menuItem.getPrice())
-            .isActive(menuItem.getIsActive())
-            .imageUrl(menuItem.getImageUrl())
-            .build();
+    public MenuResponseDto.CategoryWithMenus getMenusByCategory(Long categoryId) {
+        log.info("Fetching menus for category: {}", categoryId);
+
+        // 카테고리 정보 조회
+        CategoryEntity category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new IllegalArgumentException("Category not found with id: " + categoryId));
+
+        // 해당 카테고리의 활성화된 메뉴 조회
+        List<MenuItemEntity> menus = menuItemRepository.findByCategoryIdAndIsActive(
+                categoryId,
+                true,
+                Sort.by(Sort.Direction.ASC, "menuId"));
+
+        // 메뉴 DTO 변환
+        List<MenuResponseDto.MenuDetail> menuDetails = menus.stream()
+                .map(menu -> MenuResponseDto.MenuDetail.builder()
+                        .menuId(menu.getMenuId())
+                        .categoryId(menu.getCategoryId())
+                        .categoryName(category.getName())
+                        .name(menu.getName())
+                        .price(menu.getPrice())
+                        .isActive(menu.getIsActive())
+                        .imageUrl(menu.getImageUrl())
+                        .build())
+                .collect(Collectors.toList());
+
+        return MenuResponseDto.CategoryWithMenus.builder()
+                .categoryId(category.getCategoryId())
+                .categoryName(category.getName())
+                .displayOrder(category.getDisplayOrder())
+                .menus(menuDetails)
+                .menuCount(menuDetails.size())
+                .build();
     }
 }
