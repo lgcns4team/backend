@@ -46,7 +46,7 @@ public class OptionService {
             throw new MenuNotActiveException(menuId);
         }
 
-        log.info("[옵션 조회] 완료 - menuId: {}, 옵션 그룹 수: {}", 
+        log.info("[옵션 조회] 완료 - menuId: {}, 옵션 그룹 수: {}",
                 menuId, menuItem.getOptionGroups().size());
 
         // Entity → DTO 변환

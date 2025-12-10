@@ -44,10 +44,9 @@ public class OptionResponseDto {
                     .menuName(menuItem.getName())
                     .basePrice(menuItem.getPrice())
                     .optionGroups(
-                        menuItem.getOptionGroups().stream()
-                                .map(OptionGroupDto::from)
-                                .collect(Collectors.toList())
-                    )
+                            menuItem.getOptionGroups().stream()
+                                    .map(OptionGroupDto::from)
+                                    .collect(Collectors.toList()))
                     .build();
         }
     }
@@ -74,10 +73,9 @@ public class OptionResponseDto {
                     .isRequired(optionGroup.getIsRequired())
                     .selectionType(optionGroup.getSelectionType())
                     .options(
-                        optionGroup.getOptions().stream()
-                                .map(OptionItemDto::from)
-                                .collect(Collectors.toList())
-                    )
+                            optionGroup.getOptions().stream()
+                                    .map(OptionItemDto::from)
+                                    .collect(Collectors.toList()))
                     .build();
         }
     }
