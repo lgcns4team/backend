@@ -1,6 +1,5 @@
 package com.NOK_NOK.order.controller;
 
-import com.NOK_NOK.order.domain.dto.MenuRequestDto;
 import com.NOK_NOK.order.domain.dto.MenuResponseDto;
 import com.NOK_NOK.order.service.MenuService;
 import io.swagger.v3.oas.annotations.Operation;
