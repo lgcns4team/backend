@@ -1,13 +1,19 @@
 spring:
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     database-platform: org.hibernate.dialect.MariaDBDialect
     properties:
       hibernate:
         format_sql: true
         use_sql_comments: true
 
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
+    path: /swagger-ui.html
 
 logging.level:
   org.hibernate.SQL: debug
