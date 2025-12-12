@@ -29,18 +29,8 @@ public class CustomerSessionEntity {
     private Long sessionId;
 
     /**
-     * 시간대 (필수)
-     * MORNING: 아침 (06:00~11:59)
-     * AFTERNOON: 오후 (12:00~17:59)
-     * EVENING: 저녁 (18:00~05:59)
-     */
-    @Column(name = "time_slot", length = 20)
-    private String timeSlot;
-
-    /**
      * 성별 (선택)
-     * MALE: 남성
-     * FEMALE: 여성
+     * DB: ENUM('M','F')
      * NULL: 대상 인식 실패
      */
     @Column(name = "gender", length = 10)
@@ -55,8 +45,19 @@ public class CustomerSessionEntity {
     private String ageGroup;
 
     /**
-     * 세션 생성 시간
+     * 세션 생성 시간 (주문 시작 시간)
+     * 
+     * ⭐ 이 시간으로 time_slot 계산!
+     * - 06:00~11:59 → MORNING
+     * - 12:00~17:59 → AFTERNOON
+     * - 18:00~05:59 → EVENING
      */
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    /**
+     * 세션 종료 시간 (주문 완료 시간)
+     */
+    @Column(name = "ended_at")
+    private LocalDateTime endedAt;
 }
