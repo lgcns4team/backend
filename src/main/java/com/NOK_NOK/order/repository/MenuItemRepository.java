@@ -63,18 +63,22 @@ public interface MenuItemRepository extends JpaRepository<MenuItemEntity, Long> 
     Optional<MenuItemEntity> findByIdWithOptions(@Param("menuId") Long menuId);
 
     // ============================================
-    // ⭐ 추천 메뉴 쿼리 (3단계) - 여기서부터 추가!
+    // ⭐ 추천 메뉴 쿼리
+    // customer_session.created_at으로 time_slot 계산:
+    // - HOUR(cs.created_at) BETWEEN 6 AND 11 → 'MORNING'
+    // - HOUR(cs.created_at) BETWEEN 12 AND 17 → 'AFTERNOON'
+    // - 나머지 → 'EVENING'
     // ============================================
 
     /**
      * 1순위: 시간대 + 성별 + 연령대 기반 추천
      * 
      * 대상 인식 성공 시 사용
-     * Native Query 사용 (LIMIT 적용)
+     * customer_session.created_at으로 시간대 판단
      * 
-     * @param timeSlot  시간대
-     * @param gender    성별
-     * @param ageGroup  연령대
+     * @param timeSlot  시간대 ('MORNING', 'AFTERNOON', 'EVENING')
+     * @param gender    성별 ('M', 'F')
+     * @param ageGroup  연령대 ("10대", "20대", ...)
      * @param startDate 조회 시작 날짜 (최근 3개월)
      * @param limit     조회 개수
      * @return [menuId, orderCount] 배열 리스트
@@ -84,11 +88,15 @@ public interface MenuItemRepository extends JpaRepository<MenuItemEntity, Long> 
             "JOIN orders o ON cs.session_id = o.session_id " +
             "JOIN order_item oi ON o.order_id = oi.order_id " +
             "JOIN menu_item m ON oi.menu_id = m.menu_id " +
-            "WHERE cs.time_slot = :timeSlot " +
-            "  AND cs.gender = :gender " +
+            "WHERE cs.gender = :gender " +
             "  AND cs.age_group = :ageGroup " +
             "  AND m.is_active = 1 " +
-            "  AND o.created_at >= :startDate " +
+            "  AND cs.created_at >= :startDate " +
+            "  AND CASE " +
+            "        WHEN :timeSlot = 'MORNING' THEN HOUR(cs.created_at) BETWEEN 6 AND 11 " +
+            "        WHEN :timeSlot = 'AFTERNOON' THEN HOUR(cs.created_at) BETWEEN 12 AND 17 " +
+            "        WHEN :timeSlot = 'EVENING' THEN (HOUR(cs.created_at) >= 18 OR HOUR(cs.created_at) < 6) " +
+            "      END " +
             "GROUP BY m.menu_id " +
             "ORDER BY order_count DESC " +
             "LIMIT :limit", nativeQuery = true)
@@ -103,7 +111,7 @@ public interface MenuItemRepository extends JpaRepository<MenuItemEntity, Long> 
      * 2순위: 시간대만 기반 추천 (디폴트)
      * 
      * 대상 인식 실패 시 사용
-     * Native Query 사용 (LIMIT 적용)
+     * customer_session.created_at으로 시간대 판단
      * 
      * @param timeSlot  시간대
      * @param startDate 조회 시작 날짜
@@ -115,9 +123,13 @@ public interface MenuItemRepository extends JpaRepository<MenuItemEntity, Long> 
             "JOIN orders o ON cs.session_id = o.session_id " +
             "JOIN order_item oi ON o.order_id = oi.order_id " +
             "JOIN menu_item m ON oi.menu_id = m.menu_id " +
-            "WHERE cs.time_slot = :timeSlot " +
-            "  AND m.is_active = 1 " +
-            "  AND o.created_at >= :startDate " +
+            "WHERE m.is_active = 1 " +
+            "  AND cs.created_at >= :startDate " +
+            "  AND CASE " +
+            "        WHEN :timeSlot = 'MORNING' THEN HOUR(cs.created_at) BETWEEN 6 AND 11 " +
+            "        WHEN :timeSlot = 'AFTERNOON' THEN HOUR(cs.created_at) BETWEEN 12 AND 17 " +
+            "        WHEN :timeSlot = 'EVENING' THEN (HOUR(cs.created_at) >= 18 OR HOUR(cs.created_at) < 6) " +
+            "      END " +
             "GROUP BY m.menu_id " +
             "ORDER BY order_count DESC " +
             "LIMIT :limit", nativeQuery = true)
@@ -128,8 +140,6 @@ public interface MenuItemRepository extends JpaRepository<MenuItemEntity, Long> 
 
     /**
      * 3순위: 전체 인기 메뉴 (최후의 디폴트)
-     * 
-     * Native Query 사용 (LIMIT 적용)
      * 
      * @param startDate 조회 시작 날짜
      * @param limit     조회 개수
