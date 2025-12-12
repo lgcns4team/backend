@@ -5,14 +5,11 @@ spring:
     username: ${DRIVER_USER_NAME}
     password: ${DRIVER_PASSWORD}
 
-  profiles:
-    active: local
-
-#  data:
-#    redis:
-#      host: ${REDIS_HOST}
-#      port: ${REDIS_PORT:6379}
-#      timeout: 5000ms
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT:6379}
+      timeout: 5000ms
 
 server:
   port: 8080

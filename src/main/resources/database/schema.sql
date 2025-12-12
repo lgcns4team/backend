@@ -132,7 +132,6 @@ CREATE TABLE order_item_option (
     order_item_id BIGINT NOT NULL,
     option_item_id BIGINT NOT NULL,
     extra_price INT NOT NULL COMMENT '옵션 금액',
-    option_quantity INT NOT NULL COMMENT '옵션 수량',
     PRIMARY KEY (order_item_option_id),
     FOREIGN KEY (order_item_id) REFERENCES order_item(order_item_id),
     FOREIGN KEY (option_item_id) REFERENCES option_item(option_item_id)
