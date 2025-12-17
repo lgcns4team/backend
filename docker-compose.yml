@@ -12,6 +12,7 @@ services:
       MARIADB_PASSWORD: ${DRIVER_PASSWORD}
     volumes:
       - mariadb:/var/lib/mysql
+      - ./dump.sql:/docker-entrypoint-initdb.d/00-dump.sql
     healthcheck:
       test: ["CMD", "mariadb-admin", "ping", "-h", "localhost", "-u", "${DB_COMPOSE_USER}", "-p${DRIVER_PASSWORD}"]
       interval: 10s
