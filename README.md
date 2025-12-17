@@ -27,6 +27,7 @@
 ## 🐳Docker Compose
 <details>
   <summary>백엔드 DB 환경 자동 구성 </summary>
+  
   1. 최상위 루트 디렉터리 backend에서 해당 명령어를 치면 끝납니다.
     1-2. WSL 환경에서 mnt로 이동 시 속도가 느릴 수 있으니 WSL 홈에 .env docker-compose.yml dump.sql cp 명령어로 가져와서 실행 하시는 것도 좋습니다. 
   
