@@ -24,6 +24,57 @@
 
 ---
 
+## 🐳Docker Compose
+<details>
+  <summary>백엔드 DB 환경 자동 구성 </summary>
+  1. 최상위 루트 디렉터리 backend에서 해당 명령어를 치면 끝납니다.
+    1-2. WSL 환경에서 mnt로 이동 시 속도가 느릴 수 있으니 WSL 홈에 .env docker-compose.yml dump.sql cp 명령어로 가져와서 실행 하시는 것도 좋습니다. 
+  
+  ``` bash
+  # 해당 디렉토리로 이동 후 Docker Compose 데몬 실행
+  $ docker compose up -d
+  ```
+2. [부가 설명] DB에 데이터가 정상적으로 추가 됐는지 확인
+
+``` bahs
+# Docker가 정상적으로 실행 됐는지 확인
+$ docker ps
+
+# mariadb 컨테이너 bash로 접속
+$ docker exec -it mariadb /bin/bash
+
+# mysql 접속
+$ mysql -u root -p<env에 있는 자신의 PASSWORD>
+
+# 데이터베이스 확인
+$ show databases;
+
+# 테이블 확인
+$ use nok_nok;
+$ show tables;
+
+# SQL 명령어 COUNT
+$ MariaDB [nok_nok]> select count(*) from orders;
++----------+
+| count(*) |
++----------+
+|       50 |
++----------+
+1 row in set (0.002 sec)
+```
+
+3. Docker Compose 종료 및 볼륨 삭제
+
+``` bash
+  # 컴포즈 종료
+  $ docker compose down
+
+  # 컴포즈 종료와 함께 volume(데이터) 삭제
+  $ docker compose down -v
+  # 혹은 docker volume rm nok_nok_docker_compose_mariadb or docker volume prune  
+```
+</details>
+
 ## Redis
 <details>
   <summary>Redis 사용 추천</summary>
