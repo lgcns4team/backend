@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
  * 테이블: customer_session
  * 
  * 대상 인식 정보:
- * - timeSlot: 시간대 (필수)
+ * - timeSlot: 시간대 (자동 계산)
  * - gender: 성별 (선택 - 대상 인식 성공 시)
  * - ageGroup: 연령대 (선택 - 대상 인식 성공 시)
  */
@@ -29,35 +29,62 @@ public class CustomerSessionEntity {
     private Long sessionId;
 
     /**
-     * 성별 (선택)
-     * DB: ENUM('M','F')
-     * NULL: 대상 인식 실패
+     * 매장
      */
-    @Column(name = "gender", length = 10)
-    private String gender;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "store_id", nullable = false)
+    private StoreEntity store;
+
+    /**
+     * 세션 생성 시간
+     */
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+
+    /**
+     * 세션 종료 시간
+     */
+    @Column(name = "ended_at")
+    private LocalDateTime endedAt;
 
     /**
      * 연령대 (선택)
      * 예: "10대", "20대", "30대", "40대", "50대+"
      * NULL: 대상 인식 실패
      */
-    @Column(name = "age_group", length = 10)
+    @Column(name = "age_group", length = 50)
     private String ageGroup;
 
     /**
-     * 세션 생성 시간 (주문 시작 시간)
-     * 
-     * ⭐ 이 시간으로 time_slot 계산!
-     * - 06:00~11:59 → MORNING
-     * - 12:00~17:59 → AFTERNOON
-     * - 18:00~05:59 → EVENING
+     * 성별 (선택)
+     * M: 남성
+     * F: 여성
+     * NULL: 대상 인식 실패
      */
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "gender", length = 1)
+    private Gender gender;
 
     /**
-     * 세션 종료 시간 (주문 완료 시간)
+     * 시니어 모드 여부
+     * FALSE: 일반 모드
+     * TRUE: 쉬운 주문 모드
      */
-    @Column(name = "ended_at")
-    private LocalDateTime endedAt;
+    @Column(name = "is_senior_mode", nullable = false)
+    @Builder.Default
+    private Boolean isSeniorMode = false;
+
+    /**
+     * 성별 enum
+     */
+    public enum Gender {
+        M, F
+    }
+
+        /**
+     * 편의 메서드: 세션 종료
+     */
+    public void endSession() {
+        this.endedAt = LocalDateTime.now();
+    }
 }

@@ -1,134 +1,6 @@
-
--- ============================================
--- 1. 카테고리
--- ============================================
-INSERT INTO category (category_id, name, display_order) VALUES
-(1, '커피', 1),
-(2, '논커피', 2),
-(3, '디저트', 3);
-
--- ============================================
--- 2. 매장
--- ============================================
-INSERT INTO store (store_id, name, code, address, is_active) VALUES
-(1, '강남 1호점', 'GN01', '서울시 강남구 어딘가 1길 10', 1),
-(2, '홍대 1호점', 'HD01', '서울시 마포구 홍대입구로 20', 1);
-
--- ============================================
--- 3. 키오스크
--- ============================================
-INSERT INTO kiosk (kiosk_id, store_id, kiosk_code, password, location, is_active) VALUES
-(1, 1, 'GN01-K01', 'pw1', '입구', 1),
-(2, 1, 'GN01-K02', 'pw2', '창가', 1),
-(3, 2, 'HD01-K01', 'pw3', '입구', 1);
-
--- ============================================
--- 4. 관리자
--- ============================================
-INSERT INTO admin_user (admin_id, store_id, username, password, is_active) VALUES
-(1, 1, 'gn_admin', 'adminpw1', 1),
-(2, 2, 'hd_admin', 'adminpw2', 1);
-
--- ============================================
--- 5. 메뉴 아이템
--- ============================================
-INSERT INTO menu_item (menu_id, category_id, name, price, is_active, image_url) VALUES
-(1, 1, '아메리카노', 4000, 1, '/images/menu/americano.png'),
-(2, 1, '카페라떼', 4500, 1, '/images/menu/cafe_latte.png'),
-(3, 2, '레몬에이드', 5000, 1, '/images/menu/lemon_ade.png'),
-(4, 3, '치즈케이크', 5500, 1, '/images/menu/cheese_cake.png');
-
--- ============================================
--- 6. 옵션 그룹
--- ============================================
-INSERT INTO option_group (option_group_id, menu_id, name, is_required, selection_type) VALUES
-(1, 1, '사이즈', 1, 'SINGLE'),
-(2, 1, '얼음량', 0, 'SINGLE'),
-(3, 1, '샷 추가', 0, 'MULTI'),
-(4, 2, '사이즈', 1, 'SINGLE'),
-(5, 3, '사이즈', 1, 'SINGLE');
-
--- ============================================
--- 7. 옵션 아이템
--- ============================================
-INSERT INTO option_item (option_item_id, option_group_id, name, option_price) VALUES
-(1, 1, 'Regular', 0),
-(2, 1, 'Large', 500),
-(3, 2, '얼음 적게', 0),
-(4, 2, '얼음 보통', 0),
-(5, 2, '얼음 많이', 0),
-(6, 3, '샷 1개 추가', 500),
-(7, 3, '샷 2개 추가', 1000),
-(8, 4, 'Regular', 0),
-(9, 4, 'Large', 500),
-(10, 5, 'Regular', 0),
-(11, 5, 'Large', 500);
-
--- ============================================
--- 8. 고객 세션
--- ============================================
-INSERT INTO customer_session (session_id, store_id, created_at, ended_at, age_group, gender, is_senior_mode) VALUES
-(1, 1, NOW() - INTERVAL 30 MINUTE, NOW() - INTERVAL 25 MINUTE, '20대', 'M', 0),
-(2, 1, NOW() - INTERVAL 20 MINUTE, NOW() - INTERVAL 15 MINUTE, '60대이상', 'F', 1),
-(3, 2, NOW() - INTERVAL 10 MINUTE, NOW() - INTERVAL 5 MINUTE, '30대', 'F', 0);
-
--- ============================================
--- 9. 주문
--- ============================================
-INSERT INTO orders (order_id, session_id, store_id, order_no, status, total_amount, created_at, paid_at, payment_method, payment_status, pg_transaction_id) VALUES
-(1, 1, 1, 1001, 1, 4500, NOW() - INTERVAL 29 MINUTE, NOW() - INTERVAL 28 MINUTE, 'CARD', 'PAID', 'PG-20251202-0001'),
-(2, 2, 1, 1002, 1, 9500, NOW() - INTERVAL 19 MINUTE, NOW() - INTERVAL 18 MINUTE, 'CARD', 'PAID', 'PG-20251202-0002'),
-(3, 3, 2, 2001, 0, 5000, NOW() - INTERVAL 9 MINUTE, NULL, 'CARD', 'CANCEL', 'PG-20251202-0003');
-
--- ============================================
--- 10. 주문 아이템
--- ============================================
-INSERT INTO order_item (order_item_id, order_id, menu_id, quantity, unit_price, line_amount) VALUES
-(1, 1, 1, 1, 4500, 4500),
-(2, 2, 1, 1, 4000, 4000),
-(3, 2, 4, 1, 5500, 5500),
-(4, 3, 3, 1, 5000, 5000);
-
--- ============================================
--- 11. 주문 옵션
--- ============================================
-INSERT INTO order_item_option (order_item_option_id, order_item_id, option_item_id, extra_price) VALUES
-(1, 1, 2, 500),
-(2, 1, 6, 500),
-(3, 2, 1, 0),
-(4, 4, 11, 500);
-
--- ============================================
--- 12. 광고 컨텐츠
--- ============================================
-INSERT INTO ad_content (ad_id, title, media_type, media_url, start_date, end_date, is_active) VALUES
-(1, '점심 타임 아메리카노 20% 할인', 'IMAGE', '/ads/lunch_americano.png', '2025-12-01', '2025-12-31', 1),
-(2, '시니어 전용 세트 메뉴', 'IMAGE', '/ads/senior_set.png', '2025-12-01', '2025-12-31', 1),
-(3, '디저트 2+1 프로모션', 'IMAGE', '/ads/dessert_2plus1.png', '2025-12-01', '2025-12-15', 1);
-
--- ============================================
--- 13. 광고 타겟 룰
--- ============================================
-INSERT INTO ad_target_rule (rule_id, ad_id, age_group, gender) VALUES
-(1, 1, '20대', NULL),
-(2, 1, '30대', NULL),
-(3, 2, '60대이상', NULL),
-(4, 3, '20대', 'F');
-
--- ============================================
--- 14. 광고 로그
--- ============================================
-INSERT INTO ad_display_log (display_id, session_id, ad_id, displayed_at, duration_ms) VALUES
-(1, 1, 1, NOW() - INTERVAL 29 MINUTE, 8000),
-(2, 2, 2, NOW() - INTERVAL 19 MINUTE, 10000),
-(3, 3, 3, NOW() - INTERVAL 9 MINUTE, 5000);
-
-
-
--- -----------------------
-
 -- ============================================
 -- 기존 데이터 전체 삭제 및 신규 데이터 입력
+-- option_quantity 필드 포함
 -- ============================================
 
 SET FOREIGN_KEY_CHECKS = 0;
@@ -337,37 +209,34 @@ INSERT INTO option_item (option_item_id, option_group_id, name, option_price) VA
 (19, 13, '얼음 보통', 0),
 (20, 13, '얼음 많이', 0),
 
--- 샷 추가
-(21, 3, '샷 1개 추가', 500),
-(22, 3, '샷 2개 추가', 1000),
-(23, 6, '샷 1개 추가', 500),
-(24, 6, '샷 2개 추가', 1000),
-(25, 9, '샷 1개 추가', 500),
-(26, 9, '샷 2개 추가', 1000),
+-- 샷 추가 (1개당 500원)
+(21, 3, '샷 추가', 500),
+(22, 6, '샷 추가', 500),
+(23, 9, '샷 추가', 500),
 
 -- 온도
-(27, 5, 'HOT', 0),
-(28, 5, 'ICED', 0),
-(29, 11, 'HOT', 0),
-(30, 11, 'ICED', 0),
-(31, 16, 'HOT', 0),
-(32, 16, 'ICED', 0),
+(24, 5, 'HOT', 0),
+(25, 5, 'ICED', 0),
+(26, 11, 'HOT', 0),
+(27, 11, 'ICED', 0),
+(28, 16, 'HOT', 0),
+(29, 16, 'ICED', 0),
 
 -- 시럽 추가
-(33, 7, '바닐라 시럽', 500),
-(34, 7, '카라멜 시럽', 500),
-(35, 7, '헤이즐넛 시럽', 500),
+(30, 7, '바닐라 시럽', 500),
+(31, 7, '카라멜 시럽', 500),
+(32, 7, '헤이즐넛 시럽', 500),
 
 -- 빵 종류
-(36, 17, '크로와상', 0),
-(37, 17, '통밀빵', 500),
-(38, 18, '플레인 베이글', 0),
-(39, 18, '어니언 베이글', 500),
+(33, 17, '크로와상', 0),
+(34, 17, '통밀빵', 500),
+(35, 18, '플레인 베이글', 0),
+(36, 18, '어니언 베이글', 500),
 
 -- 토핑
-(40, 19, '메이플 시럽', 0),
-(41, 19, '생크림', 1000),
-(42, 19, '과일', 1500);
+(37, 19, '메이플 시럽', 0),
+(38, 19, '생크림', 1000),
+(39, 19, '과일', 1500);
 
 -- ============================================
 -- 8. 고객 세션 (Customer Session) - 50개
@@ -428,16 +297,16 @@ INSERT INTO customer_session (session_id, store_id, created_at, ended_at, age_gr
 -- 9. 주문 (Orders) - 50개
 -- ============================================
 INSERT INTO orders (order_id, session_id, store_id, order_no, status, total_amount, created_at, paid_at, payment_method, payment_status, pg_transaction_id) VALUES
-(1, 1, 1, 10001, 1, 4500, NOW() - INTERVAL 239 MINUTE, NOW() - INTERVAL 238 MINUTE, 'CARD', 'PAID', 'PG-20251210-00001'),
+(1, 1, 1, 10001, 1, 5500, NOW() - INTERVAL 239 MINUTE, NOW() - INTERVAL 238 MINUTE, 'CARD', 'PAID', 'PG-20251210-00001'),
 (2, 2, 1, 10002, 1, 9000, NOW() - INTERVAL 234 MINUTE, NOW() - INTERVAL 233 MINUTE, 'CARD', 'PAID', 'PG-20251210-00002'),
 (3, 3, 2, 20001, 1, 5500, NOW() - INTERVAL 229 MINUTE, NOW() - INTERVAL 228 MINUTE, 'CARD', 'PAID', 'PG-20251210-00003'),
 (4, 4, 1, 10003, 1, 9500, NOW() - INTERVAL 224 MINUTE, NOW() - INTERVAL 223 MINUTE, 'CASH', 'PAID', 'PG-20251210-00004'),
-(5, 5, 2, 20002, 1, 10500, NOW() - INTERVAL 219 MINUTE, NOW() - INTERVAL 218 MINUTE, 'CARD', 'PAID', 'PG-20251210-00005'),
+(5, 5, 2, 20002, 1, 11500, NOW() - INTERVAL 219 MINUTE, NOW() - INTERVAL 218 MINUTE, 'CARD', 'PAID', 'PG-20251210-00005'),
 (6, 6, 3, 30001, 1, 9500, NOW() - INTERVAL 214 MINUTE, NOW() - INTERVAL 213 MINUTE, 'CARD', 'PAID', 'PG-20251210-00006'),
-(7, 7, 1, 10004, 1, 5000, NOW() - INTERVAL 209 MINUTE, NOW() - INTERVAL 208 MINUTE, 'CARD', 'PAID', 'PG-20251210-00007'),
+(7, 7, 1, 10004, 1, 6000, NOW() - INTERVAL 209 MINUTE, NOW() - INTERVAL 208 MINUTE, 'CARD', 'PAID', 'PG-20251210-00007'),
 (8, 8, 2, 20003, 1, 12000, NOW() - INTERVAL 204 MINUTE, NOW() - INTERVAL 203 MINUTE, 'CARD', 'PAID', 'PG-20251210-00008'),
 (9, 9, 3, 30002, 1, 8000, NOW() - INTERVAL 199 MINUTE, NOW() - INTERVAL 198 MINUTE, 'CASH', 'PAID', 'PG-20251210-00009'),
-(10, 10, 4, 40001, 1, 14000, NOW() - INTERVAL 194 MINUTE, NOW() - INTERVAL 193 MINUTE, 'CARD', 'PAID', 'PG-20251210-00010'),
+(10, 10, 4, 40001, 1, 16500, NOW() - INTERVAL 194 MINUTE, NOW() - INTERVAL 193 MINUTE, 'CARD', 'PAID', 'PG-20251210-00010'),
 (11, 11, 2, 20004, 1, 9000, NOW() - INTERVAL 189 MINUTE, NOW() - INTERVAL 188 MINUTE, 'CARD', 'PAID', 'PG-20251210-00011'),
 (12, 12, 3, 30003, 1, 8500, NOW() - INTERVAL 184 MINUTE, NOW() - INTERVAL 183 MINUTE, 'CARD', 'PAID', 'PG-20251210-00012'),
 (13, 13, 4, 40002, 1, 11000, NOW() - INTERVAL 179 MINUTE, NOW() - INTERVAL 178 MINUTE, 'CARD', 'PAID', 'PG-20251210-00013'),
@@ -445,20 +314,20 @@ INSERT INTO orders (order_id, session_id, store_id, order_no, status, total_amou
 (15, 15, 1, 10005, 1, 8000, NOW() - INTERVAL 169 MINUTE, NOW() - INTERVAL 168 MINUTE, 'CARD', 'PAID', 'PG-20251210-00015'),
 (16, 16, 2, 20005, 1, 13700, NOW() - INTERVAL 164 MINUTE, NOW() - INTERVAL 163 MINUTE, 'CARD', 'PAID', 'PG-20251210-00016'),
 (17, 17, 3, 30004, 1, 5000, NOW() - INTERVAL 159 MINUTE, NOW() - INTERVAL 158 MINUTE, 'CARD', 'PAID', 'PG-20251210-00017'),
-(18, 18, 4, 40003, 1, 13000, NOW() - INTERVAL 154 MINUTE, NOW() - INTERVAL 153 MINUTE, 'CARD', 'PAID', 'PG-20251210-00018'),
+(18, 18, 4, 40003, 1, 15000, NOW() - INTERVAL 154 MINUTE, NOW() - INTERVAL 153 MINUTE, 'CARD', 'PAID', 'PG-20251210-00018'),
 (19, 19, 5, 50002, 1, 4000, NOW() - INTERVAL 149 MINUTE, NOW() - INTERVAL 148 MINUTE, 'CARD', 'PAID', 'PG-20251210-00019'),
 (20, 20, 1, 10006, 1, 16000, NOW() - INTERVAL 144 MINUTE, NOW() - INTERVAL 143 MINUTE, 'CASH', 'PAID', 'PG-20251210-00020'),
 (21, 21, 2, 20006, 1, 11000, NOW() - INTERVAL 139 MINUTE, NOW() - INTERVAL 138 MINUTE, 'CARD', 'PAID', 'PG-20251210-00021'),
 (22, 22, 3, 30005, 1, 8300, NOW() - INTERVAL 134 MINUTE, NOW() - INTERVAL 133 MINUTE, 'CARD', 'PAID', 'PG-20251210-00022'),
-(23, 23, 4, 40004, 1, 12500, NOW() - INTERVAL 129 MINUTE, NOW() - INTERVAL 128 MINUTE, 'CARD', 'PAID', 'PG-20251210-00023'),
+(23, 23, 4, 40004, 1, 13500, NOW() - INTERVAL 129 MINUTE, NOW() - INTERVAL 128 MINUTE, 'CARD', 'PAID', 'PG-20251210-00023'),
 (24, 24, 5, 50003, 1, 11000, NOW() - INTERVAL 124 MINUTE, NOW() - INTERVAL 123 MINUTE, 'CARD', 'PAID', 'PG-20251210-00024'),
 (25, 25, 1, 10007, 1, 13000, NOW() - INTERVAL 119 MINUTE, NOW() - INTERVAL 118 MINUTE, 'CARD', 'PAID', 'PG-20251210-00025'),
-(26, 26, 2, 20007, 1, 9500, NOW() - INTERVAL 114 MINUTE, NOW() - INTERVAL 113 MINUTE, 'CASH', 'PAID', 'PG-20251210-00026'),
+(26, 26, 2, 20007, 1, 10500, NOW() - INTERVAL 114 MINUTE, NOW() - INTERVAL 113 MINUTE, 'CASH', 'PAID', 'PG-20251210-00026'),
 (27, 27, 3, 30006, 1, 8000, NOW() - INTERVAL 109 MINUTE, NOW() - INTERVAL 108 MINUTE, 'CARD', 'PAID', 'PG-20251210-00027'),
 (28, 28, 4, 40005, 1, 12500, NOW() - INTERVAL 104 MINUTE, NOW() - INTERVAL 103 MINUTE, 'CARD', 'PAID', 'PG-20251210-00028'),
 (29, 29, 5, 50004, 1, 8700, NOW() - INTERVAL 99 MINUTE, NOW() - INTERVAL 98 MINUTE, 'CARD', 'PAID', 'PG-20251210-00029'),
 (30, 30, 1, 10008, 1, 10500, NOW() - INTERVAL 94 MINUTE, NOW() - INTERVAL 93 MINUTE, 'CARD', 'PAID', 'PG-20251210-00030'),
-(31, 31, 2, 20008, 1, 8000, NOW() - INTERVAL 89 MINUTE, NOW() - INTERVAL 88 MINUTE, 'CARD', 'PAID', 'PG-20251210-00031'),
+(31, 31, 2, 20008, 1, 9000, NOW() - INTERVAL 89 MINUTE, NOW() - INTERVAL 88 MINUTE, 'CARD', 'PAID', 'PG-20251210-00031'),
 (32, 32, 3, 30007, 1, 12000, NOW() - INTERVAL 84 MINUTE, NOW() - INTERVAL 83 MINUTE, 'CASH', 'PAID', 'PG-20251210-00032'),
 (33, 33, 4, 40006, 1, 9000, NOW() - INTERVAL 79 MINUTE, NOW() - INTERVAL 78 MINUTE, 'CARD', 'PAID', 'PG-20251210-00033'),
 (34, 34, 5, 50005, 1, 8200, NOW() - INTERVAL 74 MINUTE, NOW() - INTERVAL 73 MINUTE, 'CARD', 'PAID', 'PG-20251210-00034'),
@@ -469,7 +338,7 @@ INSERT INTO orders (order_id, session_id, store_id, order_no, status, total_amou
 (39, 39, 5, 50006, 1, 9500, NOW() - INTERVAL 49 MINUTE, NOW() - INTERVAL 48 MINUTE, 'CARD', 'PAID', 'PG-20251210-00039'),
 (40, 40, 1, 10010, 1, 10000, NOW() - INTERVAL 44 MINUTE, NOW() - INTERVAL 43 MINUTE, 'CARD', 'PAID', 'PG-20251210-00040'),
 (41, 41, 2, 20010, 1, 8000, NOW() - INTERVAL 39 MINUTE, NOW() - INTERVAL 38 MINUTE, 'CARD', 'PAID', 'PG-20251210-00041'),
-(42, 42, 3, 30009, 1, 11000, NOW() - INTERVAL 34 MINUTE, NOW() - INTERVAL 33 MINUTE, 'CARD', 'PAID', 'PG-20251210-00042'),
+(42, 42, 3, 30009, 1, 12000, NOW() - INTERVAL 34 MINUTE, NOW() - INTERVAL 33 MINUTE, 'CARD', 'PAID', 'PG-20251210-00042'),
 (43, 43, 4, 40008, 1, 7000, NOW() - INTERVAL 29 MINUTE, NOW() - INTERVAL 28 MINUTE, 'CASH', 'PAID', 'PG-20251210-00043'),
 (44, 44, 5, 50007, 1, 11000, NOW() - INTERVAL 24 MINUTE, NOW() - INTERVAL 23 MINUTE, 'CARD', 'PAID', 'PG-20251210-00044'),
 (45, 45, 1, 10011, 1, 12500, NOW() - INTERVAL 19 MINUTE, NOW() - INTERVAL 18 MINUTE, 'CARD', 'PAID', 'PG-20251210-00045'),
@@ -483,8 +352,8 @@ INSERT INTO orders (order_id, session_id, store_id, order_no, status, total_amou
 -- 10. 주문 아이템 (Order Item) - 다양한 메뉴 조합
 -- ============================================
 INSERT INTO order_item (order_item_id, order_id, menu_id, quantity, unit_price, line_amount) VALUES
--- 주문 1: 아메리카노 Large
-(1, 1, 1, 1, 4000, 4500),
+-- 주문 1: 아메리카노 Large + 샷추가 2개
+(1, 1, 1, 1, 4000, 5500),
 -- 주문 2: 카페라떼 x2
 (2, 2, 2, 2, 4500, 9000),
 -- 주문 3: 치즈케이크
@@ -492,21 +361,21 @@ INSERT INTO order_item (order_item_id, order_id, menu_id, quantity, unit_price, 
 -- 주문 4: 아메리카노 + 치즈케이크
 (4, 4, 1, 1, 4000, 4000),
 (5, 4, 28, 1, 5500, 5500),
--- 주문 5: 카페라떼 + 티라미수
-(6, 5, 2, 1, 4500, 4500),
+-- 주문 5: 카페라떼 + 티라미수 (샷추가 3개)
+(6, 5, 2, 1, 4500, 6000),
 (7, 5, 29, 1, 6000, 6000),
 -- 주문 6: 레몬에이드 + 초코 브라우니
 (8, 6, 16, 1, 5000, 5000),
 (9, 6, 30, 1, 4500, 4500),
--- 주문 7: 카푸치노 Regular
-(10, 7, 3, 1, 4500, 5000),
+-- 주문 7: 카푸치노 (샷추가 2개)
+(10, 7, 3, 1, 4500, 6000),
 -- 주문 8: 카라멜 마키아또 + 마카롱 세트
 (11, 8, 4, 1, 5000, 5000),
 (12, 8, 31, 1, 7000, 7000),
 -- 주문 9: 아메리카노 x2
 (13, 9, 1, 2, 4000, 8000),
--- 주문 10: 바닐라 라떼 + 딸기라떼 + 휘낭시에
-(14, 10, 5, 1, 5000, 5000),
+-- 주문 10: 바닐라 라떼 (샷추가 1개) + 딸기라떼 + 휘낭시에
+(14, 10, 5, 1, 5000, 5500),
 (15, 10, 19, 1, 5500, 5500),
 (16, 10, 32, 1, 3500, 3500),
 -- 주문 11: 카페모카 + 스콘
@@ -529,8 +398,8 @@ INSERT INTO order_item (order_item_id, order_id, menu_id, quantity, unit_price, 
 (28, 16, 33, 1, 3500, 3500),
 -- 주문 17: 녹차라떼 Regular
 (29, 17, 21, 1, 5000, 5000),
--- 주문 18: 팬케이크 + 카페라떼
-(30, 18, 41, 1, 7500, 9000),
+-- 주문 18: 팬케이크 (토핑 2종) + 카페라떼
+(30, 18, 41, 1, 7500, 10500),
 (31, 18, 2, 1, 4500, 4500),
 -- 주문 19: 아메리카노 Regular
 (32, 19, 1, 1, 4000, 4000),
@@ -544,8 +413,8 @@ INSERT INTO order_item (order_item_id, order_id, menu_id, quantity, unit_price, 
 -- 주문 22: 플랫화이트 + 소금빵
 (38, 22, 9, 1, 4800, 4800),
 (39, 22, 48, 1, 3500, 3500),
--- 주문 23: 아인슈페너 + 마카롱 세트
-(40, 23, 10, 1, 5500, 5500),
+-- 주문 23: 아인슈페너 (샷추가 2개) + 마카롱 세트
+(40, 23, 10, 1, 5500, 6500),
 (41, 23, 31, 1, 7000, 7000),
 -- 주문 24: 베이글 샌드위치 + 초코라떼
 (42, 24, 39, 1, 6000, 6000),
@@ -553,9 +422,9 @@ INSERT INTO order_item (order_item_id, order_id, menu_id, quantity, unit_price, 
 -- 주문 25: 에그 베네딕트 + 카페라떼
 (44, 25, 40, 1, 8500, 8500),
 (45, 25, 2, 1, 4500, 4500),
--- 주문 26: 치즈케이크 + 아메리카노
+-- 주문 26: 치즈케이크 + 아메리카노 (샷추가 1개)
 (46, 26, 28, 1, 5500, 5500),
-(47, 26, 1, 1, 4000, 4000),
+(47, 26, 1, 1, 4000, 5000),
 -- 주문 27: 아메리카노 x2
 (48, 27, 1, 2, 4000, 8000),
 -- 주문 28: 와플 + 딸기라떼
@@ -567,8 +436,8 @@ INSERT INTO order_item (order_item_id, order_id, menu_id, quantity, unit_price, 
 -- 주문 30: 카페라떼 + 티라미수
 (53, 30, 2, 1, 4500, 4500),
 (54, 30, 29, 1, 6000, 6000),
--- 주문 31: 아메리카노 x2
-(55, 31, 1, 2, 4000, 8000),
+-- 주문 31: 아메리카노 x2 (1개는 샷추가 1개)
+(55, 31, 1, 2, 4000, 9000),
 -- 주문 32: 프렌치토스트 + 카페라떼
 (56, 32, 43, 1, 7500, 7500),
 (57, 32, 2, 1, 4500, 4500),
@@ -597,8 +466,8 @@ INSERT INTO order_item (order_item_id, order_id, menu_id, quantity, unit_price, 
 (72, 40, 28, 1, 5500, 5500),
 -- 주문 41: 아메리카노 x2
 (73, 41, 1, 2, 4000, 8000),
--- 주문 42: 디카페인 라떼 + 티라미수
-(74, 42, 14, 1, 5000, 5000),
+-- 주문 42: 디카페인 라떼 (샷추가 2개) + 티라미수
+(74, 42, 14, 1, 5000, 6000),
 (75, 42, 29, 1, 6000, 6000),
 -- 주문 43: 유자차 + 모닝빵
 (76, 43, 24, 1, 4500, 4500),
@@ -627,18 +496,39 @@ INSERT INTO order_item (order_item_id, order_id, menu_id, quantity, unit_price, 
 
 -- ============================================
 -- 11. 주문 옵션 (Order Item Option)
+-- *** option_quantity 필드 포함 ***
+-- 개별 금액 (extra_price) x 수량 (option_quantity) = 총 옵션 금액
 -- ============================================
-INSERT INTO order_item_option (order_item_option_id, order_item_id, option_item_id, extra_price) VALUES
--- 주문 1: 아메리카노 Large
-(1, 1, 2, 500),
--- 주문 7: 카푸치노 샷추가
-(2, 10, 6, 500),
-(3, 10, 25, 500),
--- 주문 18: 팬케이크 토핑
-(4, 30, 41, 1000),
-(5, 30, 42, 1500),
--- 주문 24: 베이글 샌드위치
-(6, 42, 39, 500);
+INSERT INTO order_item_option (order_item_option_id, order_item_id, option_item_id, extra_price, option_quantity) VALUES
+-- 주문 1: 아메리카노 Large + 샷추가 2개
+(1, 1, 2, 500, 1),      -- Large 사이즈 (500원 x 1개)
+(2, 1, 21, 500, 2),     -- 샷 추가 (500원 x 2개 = 1000원)
+
+-- 주문 5: 카페라떼 샷추가 3개
+(3, 6, 22, 500, 3),     -- 샷 추가 (500원 x 3개 = 1500원)
+
+-- 주문 7: 카푸치노 Large + 샷추가 2개
+(4, 10, 6, 500, 1),     -- Large 사이즈 (500원 x 1개)
+(5, 10, 23, 500, 2),    -- 샷 추가 (500원 x 2개 = 1000원)
+
+-- 주문 10: 바닐라 라떼 샷추가 1개
+(6, 14, 22, 500, 1),    -- 샷 추가 (500원 x 1개 = 500원)
+
+-- 주문 18: 팬케이크 토핑 2종 (생크림 + 과일)
+(7, 30, 38, 1000, 1),   -- 생크림 (1000원 x 1개)
+(8, 30, 39, 1500, 2),   -- 과일 (1500원 x 2개 = 3000원)
+
+-- 주문 23: 아인슈페너 샷추가 2개
+(9, 40, 21, 500, 2),    -- 샷 추가 (500원 x 2개 = 1000원)
+
+-- 주문 26: 아메리카노 샷추가 1개
+(10, 47, 21, 500, 2),   -- 샷 추가 (500원 x 2개 = 1000원)
+
+-- 주문 31: 아메리카노 1개에만 샷추가 1개 (두 번째 아메리카노)
+(11, 55, 21, 500, 2),   -- 샷 추가 (500원 x 2개 = 1000원)
+
+-- 주문 42: 디카페인 라떼 샷추가 2개
+(12, 74, 22, 500, 2);   -- 샷 추가 (500원 x 2개 = 1000원)
 
 -- ============================================
 -- 12. 광고 컨텐츠 (Ad Content) - 10개
@@ -747,22 +637,4 @@ INSERT INTO ad_display_log (display_id, session_id, ad_id, displayed_at, duratio
 (50, 50, 4, NOW() - INTERVAL 2 MINUTE, 8000);
 
 SET FOREIGN_KEY_CHECKS = 1;
-
 -- ============================================
--- 완료 메시지
--- ============================================
-SELECT '데이터 초기화 및 입력 완료!' as message;
-SELECT COUNT(*) as category_count FROM category;
-SELECT COUNT(*) as store_count FROM store;
-SELECT COUNT(*) as kiosk_count FROM kiosk;
-SELECT COUNT(*) as admin_count FROM admin_user;
-SELECT COUNT(*) as menu_count FROM menu_item;
-SELECT COUNT(*) as option_group_count FROM option_group;
-SELECT COUNT(*) as option_item_count FROM option_item;
-SELECT COUNT(*) as session_count FROM customer_session;
-SELECT COUNT(*) as order_count FROM orders;
-SELECT COUNT(*) as order_item_count FROM order_item;
-SELECT COUNT(*) as order_option_count FROM order_item_option;
-SELECT COUNT(*) as ad_count FROM ad_content;
-SELECT COUNT(*) as ad_rule_count FROM ad_target_rule;
-SELECT COUNT(*) as ad_log_count FROM ad_display_log;
