@@ -33,7 +33,7 @@ services:
     restart: always
 
   backend:
-    image: stayonasdev/nok-nok/spring-boot-docker:latest
+    image: stayonasdev/nok-nok-spring-boot-docker:latest
     env_file:
       - .env
     ports:
