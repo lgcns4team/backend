@@ -111,7 +111,7 @@ public class AdResponseDto {
     /**
      * 결제 후 맞춤형 광고 응답
      * 
-     * API: GET /api/ads/payment?sessionId=1
+     * API: GET /api/ads/payment?ageGroup=20대&gender=M
      */
     @Getter
     @Builder

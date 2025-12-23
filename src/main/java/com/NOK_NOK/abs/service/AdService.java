@@ -65,27 +65,19 @@ public class AdService {
     /**
      * 결제 후 맞춤형 광고 조회
      * 
-     * API: GET /api/ads/payment?sessionId=1
+     * API: GET /api/ads/payment?ageGroup=20대&gender=M
      * 
-     * 세션의 연령대, 성별 정보를 기반으로 타겟팅된 광고 제공
+     * Frontend에서 저장하고 있던 대상 인식 정보를 기반으로 타겟팅된 광고 제공
      * 
-     * @param sessionId 세션 ID
+     * @param ageGroup 연령대 (Frontend에서 전달)
+     * @param gender 성별 (Frontend에서 전달)
      * @return 맞춤형 광고 목록
      */
     @Transactional(readOnly = true)
-    public AdResponseDto.PaymentAdList getPaymentAds(Long sessionId) {
-        log.info("[맞춤 광고 조회] 시작 - sessionId: {}", sessionId);
+    public AdResponseDto.PaymentAdList getPaymentAds(String ageGroup, String gender) {
+        log.info("[맞춤 광고 조회] 시작 - ageGroup: {}, gender: {}", ageGroup, gender);
 
-        // 1. 세션 조회
-        CustomerSessionEntity session = customerSessionRepository.findById(sessionId)
-                .orElseThrow(() -> new SessionNotFoundException(sessionId));
-
-        String ageGroup = session.getAgeGroup();
-        String gender = session.getGender() != null ? session.getGender().name() : null;
-
-        log.info("[맞춤 광고 조회] 타겟 정보 - ageGroup: {}, gender: {}", ageGroup, gender);
-
-        // 2. 활성화된 모든 광고 조회
+        // 1. 활성화된 모든 광고 조회
         List<AdContentEntity> activeAds = adContentRepository.findAllActiveAds(LocalDate.now());
 
         if (activeAds.isEmpty()) {
@@ -99,19 +91,19 @@ public class AdService {
                     .build();
         }
 
-        // 3. 광고 ID 목록 추출
+        // 2. 광고 ID 목록 추출
         List<Long> adIds = activeAds.stream()
                 .map(AdContentEntity::getAdId)
                 .collect(Collectors.toList());
 
-        // 4. 타겟 규칙 일괄 조회
+        // 3. 타겟 규칙 일괄 조회
         List<AdTargetRuleEntity> targetRules = adTargetRuleRepository.findByAdIdIn(adIds);
 
-        // 5. 광고별 타겟 규칙 그룹화
+        // 4. 광고별 타겟 규칙 그룹화
         Map<Long, List<AdTargetRuleEntity>> rulesByAdId = targetRules.stream()
                 .collect(Collectors.groupingBy(rule -> rule.getAdContent().getAdId()));
 
-        // 6. 타겟팅 필터링
+        // 5. 타겟팅 필터링
         List<AdContentEntity> targetedAds = new ArrayList<>();
 
         for (AdContentEntity ad : activeAds) {
@@ -132,20 +124,20 @@ public class AdService {
             }
         }
 
-        log.info("[맞춤 광고 조회] 완료 - 전체: {}, 타겟팅: {}", activeAds.size(), targetedAds.size());
-
-        // 7. DTO 변환
+        // 6. DTO 변환
         List<AdResponseDto.AdDetail> adDetails = targetedAds.stream()
                 .map(AdResponseDto.AdDetail::from)
                 .collect(Collectors.toList());
+
+        log.info("[맞춤 광고 조회] 완료 - 전체: {}, 타겟팅: {}", activeAds.size(), targetedAds.size());
 
         return AdResponseDto.PaymentAdList.builder()
                 .ads(adDetails)
                 .totalCount(adDetails.size())
                 .ageGroup(ageGroup)
                 .gender(gender)
-                .message(adDetails.isEmpty() ? 
-                        "해당 조건에 맞는 광고가 없습니다." : 
+                .message(targetedAds.isEmpty() ?
+                        "조건에 맞는 광고가 없습니다." :
                         "맞춤 광고를 제공합니다.")
                 .build();
     }

@@ -55,26 +55,30 @@ public class AdController {
     /**
      * 결제 후 맞춤형 광고 조회
      * 
-     * API: GET /api/ads/payment?sessionId=1
+     * API: GET /api/ads/payment?ageGroup=20대&gender=M
      * 
-     * 결제 완료 후 세션의 연령대, 성별 정보를 기반으로 타겟팅된 광고 제공
-     * React에서 정해진 시간 동안 표시 후 POST /api/ads/display-log 호출
+     * Frontend에서 저장하고 있던 대상 인식 정보를 파라미터로 전달
+     * 해당 조건에 맞는 광고를 타겟팅하여 제공
      * 
-     * @param sessionId 세션 ID
+     * @param ageGroup 연령대 (선택, Frontend에서 전달)
+     * @param gender 성별 (선택, Frontend에서 전달)
      * @return 맞춤형 광고 목록
      */
     @Operation(
         summary = "결제 후 맞춤형 광고 조회",
-        description = "세션의 연령대, 성별 정보를 기반으로 타겟팅된 광고를 조회합니다."
+        description = "Frontend에서 저장하고 있던 대상 인식 정보(연령대, 성별)를 기반으로 타겟팅된 광고를 제공합니다."
     )
     @GetMapping("/payment")
     public ResponseEntity<AdResponseDto.PaymentAdList> getPaymentAds(
-            @Parameter(description = "세션 ID", example = "1", required = true)
-            @RequestParam("sessionId") Long sessionId) {
+            @Parameter(description = "연령대 (예: 20대, 30대)", example = "20대")
+            @RequestParam(value = "ageGroup", required = false) String ageGroup,
+            
+            @Parameter(description = "성별 (M: 남성, F: 여성)", example = "M")
+            @RequestParam(value = "gender", required = false) String gender) {
 
-        log.info("[API] GET /api/ads/payment - sessionId: {}", sessionId);
+        log.info("[API] GET /api/ads/payment - ageGroup: {}, gender: {}", ageGroup, gender);
 
-        AdResponseDto.PaymentAdList response = adService.getPaymentAds(sessionId);
+        AdResponseDto.PaymentAdList response = adService.getPaymentAds(ageGroup, gender);
 
         return ResponseEntity.ok(response);
     }

@@ -12,7 +12,9 @@ public class AdRequestDto {
     /**
      * 결제 후 맞춤형 광고 조회 요청
      * 
-     * API: GET /api/ads/payment?sessionId=1
+     * API: GET /api/ads/payment?ageGroup=20대&gender=M
+     * 
+     * Frontend에서 저장하고 있던 대상 인식 정보를 파라미터로 전달
      */
     @Getter
     @Setter
@@ -22,9 +24,18 @@ public class AdRequestDto {
     public static class PaymentAdRequest {
         
         /**
-         * 세션 ID (연령대, 성별 정보 포함)
+         * 연령대 (선택)
+         * 예: "10대", "20대", "30대", "40대", "50대+"
+         * NULL: 대상 인식 실패 → 일반 광고
          */
-        private Long sessionId;
+        private String ageGroup;
+
+        /**
+         * 성별 (선택)
+         * M: 남성, F: 여성
+         * NULL: 대상 인식 실패 → 일반 광고
+         */
+        private String gender;
     }
 
     /**
