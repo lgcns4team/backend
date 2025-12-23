@@ -47,8 +47,8 @@ public class OrderController {
     public ResponseEntity<OrderResponseDto.ValidateResult> validateOrder(
             @RequestBody OrderRequestDto.ValidateOrder request) {
 
-        log.info("[API] POST /api/orders/validate - sessionId: {}, expectedAmount: {}",
-                request.getSessionId(), request.getExpectedTotalAmount());
+        log.info("[API] POST /api/orders/validate - storeId: {}, expectedAmount: {}",
+                request.getStoreId(), request.getExpectedTotalAmount());
 
         OrderResponseDto.ValidateResult result = orderService.validateOrder(request);
 
@@ -61,20 +61,21 @@ public class OrderController {
      * API: POST /api/orders
      * 
      * 결제 완료 후 주문 데이터 저장
+     * Session도 함께 생성되며 대상 인식 정보(연령대, 성별)를 포함합니다.
      * 
-     * @param request 주문 생성 요청
-     * @return 주문 생성 결과
+     * @param request 주문 생성 요청 (대상 인식 정보 포함)
+     * @return 주문 생성 결과 (sessionId 포함)
      */
     @Operation(
         summary = "주문 생성",
-        description = "결제 완료 후 주문 데이터를 저장합니다. 대상 인식 정보(연령대, 성별, 시간대)도 함께 저장됩니다."
+        description = "결제 완료 후 주문 데이터를 저장합니다. Session이 함께 생성되며 대상 인식 정보(연령대, 성별)도 저장됩니다. Response에 sessionId가 포함되어 광고 조회 시 사용됩니다."
     )
     @PostMapping
     public ResponseEntity<OrderResponseDto.OrderCreated> createOrder(
             @RequestBody OrderRequestDto.CreateOrder request) {
 
-        log.info("[API] POST /api/orders - sessionId: {}, paymentMethod: {}",
-                request.getSessionId(), request.getPaymentMethod());
+        log.info("[API] POST /api/orders - storeId: {}, paymentMethod: {}, ageGroup: {}, gender: {}",
+                request.getStoreId(), request.getPaymentMethod(), request.getAgeGroup(), request.getGender());
 
         OrderResponseDto.OrderCreated result = orderService.createOrder(request);
 
