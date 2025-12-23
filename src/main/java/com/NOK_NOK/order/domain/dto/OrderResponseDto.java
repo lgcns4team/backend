@@ -104,6 +104,11 @@ public class OrderResponseDto {
         private Long orderId;
 
         /**
+         * 세션 ID (광고 조회용)
+         */
+        private Long sessionId;
+
+        /**
          * 주문 번호 (화면 표시용)
          */
         private Integer orderNo;
