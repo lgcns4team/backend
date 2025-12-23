@@ -160,7 +160,7 @@ public class AdResponseDto {
         /**
          * 세션 ID
          */
-        private Long sessionId;
+        // private Long sessionId;
 
         /**
          * 광고 ID

@@ -1,6 +1,6 @@
 package com.NOK_NOK.abs.domain.entity;
 
-import com.NOK_NOK.order.domain.entity.CustomerSessionEntity;
+// import com.NOK_NOK.order.domain.entity.CustomerSessionEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -24,12 +24,12 @@ public class AdDisplayLogEntity {
     @Column(name = "display_id")
     private Long displayId;
 
-    /**
-     * 고객 세션
-     */
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "session_id", nullable = false)
-    private CustomerSessionEntity session;
+    // /**
+    //  * 고객 세션
+    //  */
+    // @ManyToOne(fetch = FetchType.LAZY)
+    // @JoinColumn(name = "session_id", nullable = false)
+    // private CustomerSessionEntity session;
 
     /**
      * 광고 컨텐츠

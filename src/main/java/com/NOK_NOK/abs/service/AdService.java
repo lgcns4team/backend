@@ -9,8 +9,8 @@ import com.NOK_NOK.abs.exceptions.AdExceptions.*;
 import com.NOK_NOK.abs.repository.AdContentRepository;
 import com.NOK_NOK.abs.repository.AdDisplayLogRepository;
 import com.NOK_NOK.abs.repository.AdTargetRuleRepository;
-import com.NOK_NOK.order.domain.entity.CustomerSessionEntity;
-import com.NOK_NOK.order.repository.CustomerSessionRepository;
+// import com.NOK_NOK.order.domain.entity.CustomerSessionEntity;
+// import com.NOK_NOK.order.repository.CustomerSessionRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -38,7 +38,7 @@ public class AdService {
     private final AdContentRepository adContentRepository;
     private final AdTargetRuleRepository adTargetRuleRepository;
     private final AdDisplayLogRepository adDisplayLogRepository;
-    private final CustomerSessionRepository customerSessionRepository;
+    // private final CustomerSessionRepository customerSessionRepository;
 
     /**
      * 전체 활성화 광고 조회
@@ -155,20 +155,20 @@ public class AdService {
     @Transactional
     public AdResponseDto.DisplayLogSaved saveDisplayLog(AdRequestDto.SaveDisplayLog request) {
         log.info("[광고 로그 저장] 시작 - sessionId: {}, adId: {}, duration: {}ms",
-                request.getSessionId(), request.getAdId(), request.getDurationMs());
+                /*request.getSessionId(),*/ request.getAdId(), request.getDurationMs());
 
         // 1. 유효성 검증
-        if (request.getSessionId() == null || request.getAdId() == null) {
-            throw new InvalidDisplayLogRequestException("sessionId와 adId는 필수입니다.");
+        if (/*request.getSessionId() == null ||*/ request.getAdId() == null) {
+            throw new InvalidDisplayLogRequestException(/*"sessionId와 */"adId는 필수입니다.");
         }
 
         if (request.getDisplayedAt() == null) {
             throw new InvalidDisplayLogRequestException("displayedAt은 필수입니다.");
         }
 
-        // 2. 세션 조회
-        CustomerSessionEntity session = customerSessionRepository.findById(request.getSessionId())
-                .orElseThrow(() -> new SessionNotFoundException(request.getSessionId()));
+        // // 2. 세션 조회
+        // CustomerSessionEntity session = customerSessionRepository.findById(request.getSessionId())
+        //         .orElseThrow(() -> new SessionNotFoundException(request.getSessionId()));
 
         // 3. 광고 조회
         AdContentEntity adContent = adContentRepository.findById(request.getAdId())
@@ -176,7 +176,7 @@ public class AdService {
 
         // 4. 로그 엔티티 생성
         AdDisplayLogEntity displayLog = AdDisplayLogEntity.builder()
-                .session(session)
+                // .session(session)
                 .adContent(adContent)
                 .displayedAt(request.getDisplayedAt())
                 .durationMs(request.getDurationMs())
@@ -189,7 +189,7 @@ public class AdService {
 
         return AdResponseDto.DisplayLogSaved.builder()
                 .displayId(savedLog.getDisplayId())
-                .sessionId(savedLog.getSession().getSessionId())
+                // .sessionId(savedLog.getSession().getSessionId())
                 .adId(savedLog.getAdContent().getAdId())
                 .adTitle(savedLog.getAdContent().getTitle())
                 .durationMs(savedLog.getDurationMs())

@@ -102,7 +102,7 @@ public class AdController {
             @RequestBody AdRequestDto.SaveDisplayLog request) {
 
         log.info("[API] POST /api/ads/display-log - sessionId: {}, adId: {}",
-                request.getSessionId(), request.getAdId());
+                /*request.getSessionId(),*/ request.getAdId());
 
         AdResponseDto.DisplayLogSaved response = adService.saveDisplayLog(request);
 
