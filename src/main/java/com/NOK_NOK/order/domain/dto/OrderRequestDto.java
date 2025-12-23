@@ -24,11 +24,6 @@ public class OrderRequestDto {
     public static class ValidateOrder {
         
         /**
-         * 세션 ID (대상 인식 정보 포함)
-         */
-        private Long sessionId;
-
-        /**
          * 매장 ID
          */
         private Long storeId;
@@ -50,6 +45,7 @@ public class OrderRequestDto {
      * API: POST /api/orders
      * 
      * 결제 완료 후 주문 데이터 저장
+     * Session도 함께 생성됨
      */
     @Getter
     @Setter
@@ -58,11 +54,6 @@ public class OrderRequestDto {
     @Builder
     public static class CreateOrder {
         
-        /**
-         * 세션 ID (대상 인식 정보 포함)
-         */
-        private Long sessionId;
-
         /**
          * 매장 ID
          */
@@ -88,6 +79,28 @@ public class OrderRequestDto {
          * 총 금액
          */
         private Integer totalAmount;
+
+        // ===== 대상 인식 정보 (Session 생성용) =====
+        
+        /**
+         * 연령대 (선택)
+         * 예: "10대", "20대", "30대", "40대", "50대+"
+         * NULL: 대상 인식 실패
+         */
+        private String ageGroup;
+
+        /**
+         * 성별 (선택)
+         * M: 남성, F: 여성
+         * NULL: 대상 인식 실패
+         */
+        private String gender;
+
+        /**
+         * 시니어 모드 여부
+         */
+        @Builder.Default
+        private Boolean isSeniorMode = false;
     }
 
     /**

@@ -47,14 +47,11 @@ public class OrderService {
      */
     @Transactional(readOnly = true)
     public OrderResponseDto.ValidateResult validateOrder(OrderRequestDto.ValidateOrder request) {
-        log.info("[주문 검증] 시작 - sessionId: {}, storeId: {}, expectedAmount: {}",
-                request.getSessionId(), request.getStoreId(), request.getExpectedTotalAmount());
+        log.info("[주문 검증] 시작 - storeId: {}, expectedAmount: {}",
+                request.getStoreId(), request.getExpectedTotalAmount());
 
         try {
-            // 1. 세션 및 매장 검증
-            CustomerSessionEntity session = sessionRepository.findById(request.getSessionId())
-                    .orElseThrow(() -> new SessionNotFoundException(request.getSessionId()));
-
+            // 1. 매장 검증
             StoreEntity store = storeRepository.findById(request.getStoreId())
                     .orElseThrow(() -> new StoreNotFoundException(request.getStoreId()));
 
@@ -81,7 +78,7 @@ public class OrderService {
                     .expectedTotalAmount(request.getExpectedTotalAmount())
                     .priceDifference(priceDifference)
                     .validatedItems(validatedItems)
-                    .errorMessage(isValid ? "검증 완료" : "가격이 일치하지 않습니다.")
+                    .errorMessage(isValid ? "주문에 성공하였습니다." : "가격이 일치하지 않습니다.")
                     .build();
 
         } catch (Exception e) {
@@ -131,7 +128,7 @@ public class OrderService {
                         .build());
             }
         }
-        //
+
         // 3. 가격 계산
         int unitPrice = menu.getPrice() + optionTotalPrice;
         int lineAmount = unitPrice * itemRequest.getQuantity();
@@ -154,28 +151,48 @@ public class OrderService {
      * API: POST /api/orders
      * 
      * 결제 완료 후 주문 데이터 저장
+     * Session도 함께 생성됨
      * 
      * @param request 주문 생성 요청
      * @return 주문 생성 결과
      */
     @Transactional
     public OrderResponseDto.OrderCreated createOrder(OrderRequestDto.CreateOrder request) {
-        log.info("[주문 생성] 시작 - sessionId: {}, storeId: {}, paymentMethod: {}",
-                request.getSessionId(), request.getStoreId(), request.getPaymentMethod());
+        log.info("[주문 생성] 시작 - storeId: {}, paymentMethod: {}, ageGroup: {}, gender: {}",
+                request.getStoreId(), request.getPaymentMethod(), request.getAgeGroup(), request.getGender());
 
-        // 1. 세션 및 매장 조회
-        CustomerSessionEntity session = sessionRepository.findByIdWithStore(request.getSessionId())
-                .orElseThrow(() -> new SessionNotFoundException(request.getSessionId()));
-
+        // 1. 매장 조회
         StoreEntity store = storeRepository.findById(request.getStoreId())
                 .orElseThrow(() -> new StoreNotFoundException(request.getStoreId()));
 
-        // 2. 주문 번호 생성 (오늘 날짜 기준 순번)
+        // 2. 세션 생성 (대상 인식 정보 포함)
+        CustomerSessionEntity.Gender gender = null;
+        if (request.getGender() != null) {
+            try {
+                gender = CustomerSessionEntity.Gender.valueOf(request.getGender());
+            } catch (IllegalArgumentException e) {
+                log.warn("[주문 생성] 잘못된 성별 값: {}", request.getGender());
+            }
+        }
+
+        CustomerSessionEntity session = CustomerSessionEntity.builder()
+                .store(store)
+                .createdAt(LocalDateTime.now())
+                .ageGroup(request.getAgeGroup())
+                .gender(gender)
+                .isSeniorMode(request.getIsSeniorMode() != null ? request.getIsSeniorMode() : false)
+                .build();
+
+        // 세션 저장
+        CustomerSessionEntity savedSession = sessionRepository.save(session);
+        log.info("[주문 생성] 세션 생성 완료 - sessionId: {}", savedSession.getSessionId());
+
+        // 3. 주문 번호 생성 (오늘 날짜 기준 순번)
         Integer orderNo = orderRepository.findMaxOrderNoToday(store.getStoreId()) + 1;
 
-        // 3. 주문 엔티티 생성
+        // 4. 주문 엔티티 생성
         OrderEntity order = OrderEntity.builder()
-                .session(session)
+                .session(savedSession)
                 .store(store)
                 .orderNo(orderNo)
                 .status(1) // 완료
@@ -187,7 +204,7 @@ public class OrderService {
                 .paidAt(LocalDateTime.now())
                 .build();
 
-        // 4. 주문 아이템 생성
+        // 5. 주문 아이템 생성
         List<OrderResponseDto.OrderItemSummary> orderItemSummaries = new ArrayList<>();
 
         for (OrderRequestDto.OrderItemRequest itemRequest : request.getOrderItems()) {
@@ -262,17 +279,18 @@ public class OrderService {
                     .build());
         }
 
-        // 5. 주문 저장
+        // 6. 주문 저장
         OrderEntity savedOrder = orderRepository.save(order);
 
-        // 6. 세션 종료
-        session.endSession();
+        // 7. 세션 종료
+        savedSession.endSession();
 
-        log.info("[주문 생성] 완료 - orderId: {}, orderNo: {}, totalAmount: {}",
-                savedOrder.getOrderId(), savedOrder.getOrderNo(), savedOrder.getTotalAmount());
+        log.info("[주문 생성] 완료 - orderId: {}, sessionId: {}, orderNo: {}, totalAmount: {}",
+                savedOrder.getOrderId(), savedSession.getSessionId(), savedOrder.getOrderNo(), savedOrder.getTotalAmount());
 
         return OrderResponseDto.OrderCreated.builder()
                 .orderId(savedOrder.getOrderId())
+                .sessionId(savedSession.getSessionId())
                 .orderNo(savedOrder.getOrderNo())
                 .totalAmount(savedOrder.getTotalAmount())
                 .orderedAt(savedOrder.getCreatedAt())
