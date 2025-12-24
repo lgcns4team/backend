@@ -22,16 +22,21 @@ import java.util.List;
 public class SecurityConfig {
 
     //CORS 문제 해결, 나중에 비밀키로 관리 및 AWS 환경에 맞게 변경 필요
-    private String frontURL ="http://localhost:5173";
+    // private String frontURL ="http://localhost:5173";
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
 
-        corsConfiguration.setAllowedOriginPatterns(List.of(frontURL));
-        corsConfiguration.setAllowedHeaders(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        // corsConfiguration.setAllowedOriginPatterns(List.of(frontURL));
+        corsConfiguration.setAllowedOriginPatterns(List.of("*"));
+
+        corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         corsConfiguration.setAllowedHeaders(List.of("*"));
         corsConfiguration.setAllowCredentials(true);
+        
+        // 추가
+        corsConfiguration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);

@@ -15,6 +15,21 @@ spring:
 #      timeout: 5000ms
 
 server:
+  forward-headers-strategy: framework
   port: 8080
   servlet:
     context-path: /nok-nok
+  tomcat:
+    remoteip:
+      protocol-header: x-forwarded-proto
+      protocol-header-https-value: https
+      # 필수는 아님
+      remote-ip-header: x-forwarded-for
+
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+  # 서버 URL 설정 제거 (자동 감지하도록)
