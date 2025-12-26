@@ -65,6 +65,14 @@ public class OrderRequestDto {
         private List<OrderItemRequest> orderItems;
 
         /**
+         * 주문 유형
+         * dine-in: 매장 식사 (기본값)
+         * takeout: 포장
+         */
+        @Builder.Default
+        private String orderType = "dine-in";
+
+        /**
          * 결제 방식
          * CARD, QR, CASH, PAY
          */

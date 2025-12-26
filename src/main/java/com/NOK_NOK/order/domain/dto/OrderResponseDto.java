@@ -104,7 +104,7 @@ public class OrderResponseDto {
         private Long orderId;
 
         /**
-         * 세션 ID (광고 조회용)
+         * 세션 ID (광고 로그 저장용)
          */
         private Long sessionId;
 
@@ -112,6 +112,13 @@ public class OrderResponseDto {
          * 주문 번호 (화면 표시용)
          */
         private Integer orderNo;
+
+        /**
+         * 주문 유형
+         * dine-in: 매장 식사
+         * takeout: 포장
+         */
+        private String orderType;
 
         /**
          * 총 금액
@@ -174,6 +181,7 @@ public class OrderResponseDto {
         
         private Long orderId;
         private Integer orderNo;
+        private String orderType;
         private Integer totalAmount;
         private LocalDateTime orderedAt;
         private LocalDateTime paidAt;

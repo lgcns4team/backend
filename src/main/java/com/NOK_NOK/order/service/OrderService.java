@@ -78,7 +78,7 @@ public class OrderService {
                     .expectedTotalAmount(request.getExpectedTotalAmount())
                     .priceDifference(priceDifference)
                     .validatedItems(validatedItems)
-                    .errorMessage(isValid ? "주문에 성공하였습니다." : "가격이 일치하지 않습니다.")
+                    .errorMessage(isValid ? null : "가격이 일치하지 않습니다.")
                     .build();
 
         } catch (Exception e) {
@@ -195,6 +195,7 @@ public class OrderService {
                 .session(savedSession)
                 .store(store)
                 .orderNo(orderNo)
+                .orderType(request.getOrderType() != null ? request.getOrderType() : "dine-in")
                 .status(1) // 완료
                 .totalAmount(request.getTotalAmount())
                 .createdAt(LocalDateTime.now())
@@ -292,6 +293,7 @@ public class OrderService {
                 .orderId(savedOrder.getOrderId())
                 .sessionId(savedSession.getSessionId())
                 .orderNo(savedOrder.getOrderNo())
+                .orderType(savedOrder.getOrderType())
                 .totalAmount(savedOrder.getTotalAmount())
                 .orderedAt(savedOrder.getCreatedAt())
                 .paidAt(savedOrder.getPaidAt())
@@ -348,6 +350,7 @@ public class OrderService {
         return OrderResponseDto.OrderDetail.builder()
                 .orderId(order.getOrderId())
                 .orderNo(order.getOrderNo())
+                .orderType(order.getOrderType())
                 .totalAmount(order.getTotalAmount())
                 .orderedAt(order.getCreatedAt())
                 .paidAt(order.getPaidAt())
