@@ -47,12 +47,13 @@ public class OrderEntity {
 
     /**
      * 주문 유형
-     * "dine-in": 매장 식사
-     * "takeout": 포장
+     * DINE_IN: 매장 식사 (DB: 'dine-in')
+     * TAKEOUT: 포장 (DB: 'takeout')
      */
+    @Convert(converter = OrderTypeConverter.class)
     @Column(name = "order_type", nullable = false, length = 20)
     @Builder.Default
-    private String orderType = "dine-in";
+    private OrderType orderType = OrderType.DINE_IN;
 
     /**
      * 주문 상태
