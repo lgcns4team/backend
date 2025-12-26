@@ -46,6 +46,15 @@ public class OrderEntity {
     private Integer orderNo;
 
     /**
+     * 주문 유형
+     * "dine-in": 매장 식사
+     * "takeout": 포장
+     */
+    @Column(name = "order_type", nullable = false, length = 20)
+    @Builder.Default
+    private String orderType = "dine-in";
+
+    /**
      * 주문 상태
      * 1: 완료, 0: 취소
      */
