@@ -172,6 +172,7 @@ CREATE TABLE
         `session_id` bigint NOT NULL,
         `store_id` bigint NOT NULL,
         `order_no` int NOT NULL COMMENT '주문번호',
+        `order_type` enum ('dine-in', 'takeout') NOT NULL DEFAULT 'dine-in' COMMENT '매장식사/포장',
         `status` tinyint (1) NOT NULL COMMENT '주문 완료/취소',
         `total_amount` int NOT NULL COMMENT '총 가격',
         `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '생성시간',
