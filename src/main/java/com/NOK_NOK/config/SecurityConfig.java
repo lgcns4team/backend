@@ -28,12 +28,19 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
 
+        //도메인 이름
+        corsConfiguration.setAllowedOrigins(List.of(
+                "https://bfree-kiosk.com",
+                "https://www.bfree-kiosk.com"
+        ));
+
         // corsConfiguration.setAllowedOriginPatterns(List.of(frontURL));
-        corsConfiguration.setAllowedOriginPatterns(List.of("*"));
+//        corsConfiguration.setAllowedOriginPatterns(List.of("*"));
 
         corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         corsConfiguration.setAllowedHeaders(List.of("*"));
-        corsConfiguration.setAllowCredentials(true);
+        corsConfiguration.setExposedHeaders(List.of("*"));
+        corsConfiguration.setAllowCredentials(false);
         
         // 추가
         corsConfiguration.setMaxAge(3600L);
