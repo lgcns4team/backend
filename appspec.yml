@@ -1,0 +1,22 @@
+version: 0.0
+os: linux
+
+files:
+  - source: deploy/scripts
+    destination: /opt/nok-nok/scripts
+
+hooks:
+  ApplicationStop:
+    - location: stop-container.sh
+      timeout: 120
+      runas: root
+
+  AfterInstall:
+    - location: render-env-from-secrets.sh
+      timeout: 180
+      runas: root
+
+  ApplicationStart:
+    - location: run-container.sh
+      timeout: 300
+      runas: root
