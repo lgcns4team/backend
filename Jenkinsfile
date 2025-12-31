@@ -60,24 +60,34 @@ pipeline {
       }
     }
 
-    stage('Build & Push Docker Image') {
-      steps {
-        sh '''#!/bin/bash
-          set -euo pipefail
-          ACCOUNT_ID="$(cat .account_id)"
-          ECR_URI="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}"
+stage('Build & Push Docker Image') {
+  steps {
+    sh '''#!/bin/bash
+      set -euo pipefail
 
-          IMAGE_TAG="${GIT_COMMIT}"
-          IMAGE_LATEST="latest"
+      ACCOUNT_ID="$(cat .account_id)"
+      ECR_URI="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}"
 
-          docker build -t "${ECR_URI}:${IMAGE_TAG}" -t "${ECR_URI}:${IMAGE_LATEST}" .
-          docker push "${ECR_URI}:${IMAGE_TAG}"
-          docker push "${ECR_URI}:${IMAGE_LATEST}"
+      # ✅ GIT_COMMIT이 없을 수 있으므로 안전하게 대체
+      if [[ -n "${GIT_COMMIT:-}" ]]; then
+        IMAGE_TAG="${GIT_COMMIT}"
+      else
+        IMAGE_TAG="$(git rev-parse --short=12 HEAD)"
+      fi
 
-          echo "${ECR_URI}:${IMAGE_TAG}" > image_uri.txt
-        '''
-      }
-    }
+      IMAGE_LATEST="latest"
+
+      echo "[INFO] ECR_URI=${ECR_URI}"
+      echo "[INFO] IMAGE_TAG=${IMAGE_TAG}"
+
+      docker build -t "${ECR_URI}:${IMAGE_TAG}" -t "${ECR_URI}:${IMAGE_LATEST}" .
+      docker push "${ECR_URI}:${IMAGE_TAG}"
+      docker push "${ECR_URI}:${IMAGE_LATEST}"
+
+      echo "${ECR_URI}:${IMAGE_TAG}" > image_uri.txt
+    '''
+  }
+}
 
     stage('Create CodeDeploy Bundle (Zip)') {
       steps {
