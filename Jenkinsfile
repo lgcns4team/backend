@@ -49,14 +49,22 @@ pipeline {
     }
 
     stage('ECR Login') {
+      agent {
+        docker {
+          image 'amazon/aws-cli:2.15.58'
+          args '-u root:root'
+          reuseNode true
+        }
+      }
       steps {
         sh '''#!/bin/bash
-          set -euo pipefail
-          ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
-          ECR_REGISTRY="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
-          aws ecr get-login-password --region "${AWS_REGION}" | docker login --username AWS --password-stdin "${ECR_REGISTRY}"
-          echo "${ACCOUNT_ID}" > .account_id
-        '''
+            set -euo pipefail
+
+            ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
+            echo "${ACCOUNT_ID}" > .account_id
+
+            aws ecr get-login-password --region "${AWS_REGION}" > .ecr_password
+            '''
       }
     }
 
@@ -67,6 +75,9 @@ pipeline {
           ACCOUNT_ID="$(cat .account_id)"
           ECR_URI="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}"
 
+          # ✅ Jenkins 컨테이너에서 docker login 수행
+          cat .ecr_password | docker login --username AWS --password-stdin "${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
+
           IMAGE_TAG="${GIT_COMMIT}"
           IMAGE_LATEST="latest"
 
@@ -75,7 +86,7 @@ pipeline {
           docker push "${ECR_URI}:${IMAGE_LATEST}"
 
           echo "${ECR_URI}:${IMAGE_TAG}" > image_uri.txt
-        '''
+    '''
       }
     }
 
@@ -94,6 +105,13 @@ pipeline {
     }
 
     stage('Upload Bundle to S3') {
+      agent {
+        docker {
+          image 'amazon/aws-cli:2.15.58'
+          args '-u root:root'
+          reuseNode true
+          }
+        }
       steps {
         sh '''#!/bin/bash
           set -euo pipefail
@@ -101,28 +119,35 @@ pipeline {
           KEY="${DEPLOY_S3_PREFIX}/${JOB_NAME}/${BUILD_NUMBER}/deployment_bundle.zip"
           aws s3 cp deployment_bundle.zip "s3://${CODEDEPLOY_BUCKET}/${KEY}"
           echo "${KEY}" > s3_key.txt
-        '''
-      }
-    }
+    '''
+  }
+}
 
-    stage('Trigger CodeDeploy') {
-      steps {
-        sh '''#!/bin/bash
-          set -euo pipefail
-
-          KEY="$(cat s3_key.txt)"
-
-          aws deploy create-deployment \
-            --application-name "${CODEDEPLOY_APP}" \
-            --deployment-group-name "${CODEDEPLOY_DG}" \
-            --deployment-config-name "CodeDeployDefault.OneAtATime" \
-            --file-exists-behavior OVERWRITE \
-            --s3-location bucket="${CODEDEPLOY_BUCKET}",key="${KEY}",bundleType=zip \
-            --region "${AWS_REGION}"
-        '''
-      }
+stage('Trigger CodeDeploy') {
+  agent {
+    docker {
+      image 'amazon/aws-cli:2.15.58'
+      args '-u root:root'
+      reuseNode true
     }
   }
+
+  steps {
+    sh '''#!/bin/bash
+      set -euo pipefail
+
+      KEY="$(cat s3_key.txt)"
+
+      aws deploy create-deployment \
+        --application-name "${CODEDEPLOY_APP}" \
+        --deployment-group-name "${CODEDEPLOY_DG}" \
+        --deployment-config-name "CodeDeployDefault.OneAtATime" \
+        --file-exists-behavior OVERWRITE \
+        --s3-location bucket="${CODEDEPLOY_BUCKET}",key="${KEY}",bundleType=zip \
+        --region "${AWS_REGION}"
+    '''
+  }
+}
 
   post {
     always {
