@@ -8,10 +8,10 @@ pipeline {
 
   environment {
     AWS_REGION         = 'ap-northeast-2'
-    ECR_REPO_NAME      = 'bfree-kiosk-backend'          // terraform 생성 repo와 일치
+    ECR_REPO_NAME      = 'bfree-kiosk-backend'
     CODEDEPLOY_APP     = 'nok-nok-dev-codedeploy-app'
     CODEDEPLOY_DG      = 'nok-nok-dev-dg'
-    CODEDEPLOY_BUCKET  = 'bfree-kiosk-codedeploy-313984758699-dev' // var.codedeploy_bucket_name 값
+    CODEDEPLOY_BUCKET  = 'bfree-kiosk-codedeploy-313984758699-dev'
     DEPLOY_S3_PREFIX   = 'codedeploy/nok-nok'
     CONTAINER_NAME     = 'nok-nok-backend'
     CONTAINER_PORT     = '8080'
@@ -25,10 +25,21 @@ pipeline {
       }
     }
 
-    stage('Test & Build (Gradle)') {
+    // ✅ 여기만 "gradle:9.2.1-jdk17" 컨테이너에서 실행 (JDK 17 문제 해결)
+    stage('Test & Build (Gradle JDK17)') {
+      agent {
+        docker {
+          image 'gradle:9.2.1-jdk17'
+          // Jenkins가 호스트 docker.sock를 쓰는 구조라면 보통 아래 args 없어도 됩니다.
+          // 권한 문제가 나오면 -u root:root 또는 docker.sock 마운트를 추가하세요.
+          args '-u root:root'
+          reuseNode true
+        }
+      }
       steps {
         sh '''#!/bin/bash
           set -euo pipefail
+          java -version
           chmod +x ./gradlew
           ./gradlew clean test
           ./gradlew build -x test
