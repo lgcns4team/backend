@@ -34,12 +34,26 @@ pipeline {
         }
       }
       steps {
-        sh '''#!/bin/bash
-          set -euo pipefail
-          java -version
-          chmod +x ./gradlew
-          ./gradlew clean build -x test
-        '''
+    sh '''#!/bin/bash
+      set -euo pipefail
+      java -version
+      chmod +x ./gradlew
+      ./gradlew clean build -x test
+
+      echo "[INFO] build/libs output:"
+      ls -al build/libs || true
+
+      # 실행 가능한 jar를 app.jar로 고정 (plain.jar 제외)
+      JAR_PATH="$(ls -1 build/libs/*.jar | grep -v -- '-plain\\.jar$' | head -n 1 || true)"
+      if [[ -z "${JAR_PATH}" ]]; then
+        echo "[ERROR] No runnable jar found in build/libs"
+        exit 1
+      fi
+
+      cp -f "${JAR_PATH}" build/libs/app.jar
+      echo "[INFO] Selected jar: ${JAR_PATH} -> build/libs/app.jar"
+      ls -al build/libs/app.jar
+    '''
       }
     }
 
