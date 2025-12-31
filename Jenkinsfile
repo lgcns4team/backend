@@ -4,6 +4,7 @@ pipeline {
   options {
     timestamps()
     disableConcurrentBuilds()
+    skipDefaultCheckout(true)
   }
 
   environment {
@@ -21,6 +22,7 @@ pipeline {
 
     stage('Checkout') {
       steps {
+        deleteDir()       // 워크스페이스 내부 정리(안전)
         checkout scm
       }
     }
