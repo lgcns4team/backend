@@ -11,7 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * 매니저 주문 관리 Controller (단순 버전)
+ * 매니저 주문 관리 Controller
  */
 @Slf4j
 @RestController

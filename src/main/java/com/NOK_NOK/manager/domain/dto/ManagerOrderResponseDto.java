@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 매니저 주문 관리 응답 DTO (단순 버전)
+ * 매니저 주문 관리 응답 DTO
  */
 public class ManagerOrderResponseDto {
 

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * 매니저 주문 관리 Repository (단순 버전)
+ * 매니저 주문 관리 Repository
  */
 @Repository
 public interface ManagerOrderRepository extends JpaRepository<OrderEntity, Long> {

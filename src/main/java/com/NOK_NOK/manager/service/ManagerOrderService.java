@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
- * 매니저 주문 관리 Service (단순 버전)
+ * 매니저 주문 관리 Service
  */
 @Slf4j
 @Service
