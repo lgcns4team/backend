@@ -14,26 +14,21 @@ pipeline {
     CODEDEPLOY_DG      = 'nok-nok-dev-dg'
     CODEDEPLOY_BUCKET  = 'bfree-kiosk-codedeploy-313984758699-dev'
     DEPLOY_S3_PREFIX   = 'codedeploy/nok-nok'
-    CONTAINER_NAME     = 'nok-nok-backend'
-    CONTAINER_PORT     = '8080'
   }
 
   stages {
 
     stage('Checkout') {
       steps {
-        deleteDir()       // 워크스페이스 내부 정리(안전)
+        deleteDir()
         checkout scm
       }
     }
 
-    // ✅ 여기만 "gradle:9.2.1-jdk17" 컨테이너에서 실행 (JDK 17 문제 해결)
-    stage('Test & Build (Gradle JDK17)') {
+    stage('Build (Gradle JDK17)') {
       agent {
         docker {
           image 'gradle:9.2.1-jdk17'
-          // Jenkins가 호스트 docker.sock를 쓰는 구조라면 보통 아래 args 없어도 됩니다.
-          // 권한 문제가 나오면 -u root:root 또는 docker.sock 마운트를 추가하세요.
           args '-u root:root'
           reuseNode true
         }
@@ -49,22 +44,19 @@ pipeline {
     }
 
     stage('ECR Login') {
-      agent {
-        docker {
-          image 'amazon/aws-cli:2.15.58'
-          args '-u root:root'
-          reuseNode true
-        }
-      }
       steps {
         sh '''#!/bin/bash
-            set -euo pipefail
+          set -euo pipefail
+          aws --version
 
-            ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
-            echo "${ACCOUNT_ID}" > .account_id
+          ACCOUNT_ID="$(aws sts get-caller-identity --query Account --output text)"
+          ECR_REGISTRY="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com"
 
-            aws ecr get-login-password --region "${AWS_REGION}" > .ecr_password
-            '''
+          aws ecr get-login-password --region "${AWS_REGION}" \
+            | docker login --username AWS --password-stdin "${ECR_REGISTRY}"
+
+          echo "${ACCOUNT_ID}" > .account_id
+        '''
       }
     }
 
@@ -94,6 +86,7 @@ pipeline {
 
           test -f appspec.yml
           test -d scripts
+          test -f image_uri.txt
 
           rm -f deployment_bundle.zip
           zip -r deployment_bundle.zip appspec.yml scripts image_uri.txt
@@ -105,6 +98,7 @@ pipeline {
       steps {
         sh '''#!/bin/bash
           set -euo pipefail
+          aws --version
 
           KEY="${DEPLOY_S3_PREFIX}/${JOB_NAME}/${BUILD_NUMBER}/deployment_bundle.zip"
           aws s3 cp deployment_bundle.zip "s3://${CODEDEPLOY_BUCKET}/${KEY}"
@@ -117,6 +111,7 @@ pipeline {
       steps {
         sh '''#!/bin/bash
           set -euo pipefail
+          aws --version
 
           KEY="$(cat s3_key.txt)"
 
