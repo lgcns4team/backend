@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+CONTAINER_NAME="nok-nok-backend"
 URL="http://127.0.0.1:8080/nok-nok/actuator/health/readiness"
 
 echo "[INFO] Validate: ${URL}"
@@ -15,5 +16,5 @@ for i in {1..30}; do
 done
 
 echo "[ERROR] Service did not become healthy"
-docker logs nok-nok-backend --tail 200 || true
+docker logs "${CONTAINER_NAME}" --tail 200 || true
 exit 1

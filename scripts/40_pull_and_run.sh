@@ -10,10 +10,21 @@ HOST_PORT="8080"
 
 if [[ ! -f "${IMAGE_URI_FILE}" ]]; then
   echo "[ERROR] image_uri.txt not found at ${IMAGE_URI_FILE}"
+  ls -al /opt/nok-nok-deploy || true
+  exit 1
+fi
+
+if [[ ! -f "${ENV_FILE}" ]]; then
+  echo "[ERROR] env file not found at ${ENV_FILE}"
   exit 1
 fi
 
 IMAGE_URI="$(cat "${IMAGE_URI_FILE}")"
+if [[ -z "${IMAGE_URI}" ]]; then
+  echo "[ERROR] image_uri.txt is empty"
+  exit 1
+fi
+
 echo "[INFO] Pull image: ${IMAGE_URI}"
 docker pull "${IMAGE_URI}"
 
@@ -24,3 +35,6 @@ docker run -d \
   --env-file "${ENV_FILE}" \
   -p "${HOST_PORT}:${APP_PORT}" \
   "${IMAGE_URI}"
+
+echo "[INFO] Container started: ${CONTAINER_NAME}"
+docker ps --filter "name=${CONTAINER_NAME}" || true

@@ -43,8 +43,7 @@ pipeline {
           set -euo pipefail
           java -version
           chmod +x ./gradlew
-          ./gradlew clean test
-          ./gradlew build -x test
+          ./gradlew clean build -x test
         '''
       }
     }
