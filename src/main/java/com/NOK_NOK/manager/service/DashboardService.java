@@ -31,7 +31,7 @@ public class DashboardService {
         Long totalSales = dashboardRepository.getTotalSales(startDate, endDate, storeId);
         Integer totalOrders = dashboardRepository.getTotalOrders(startDate, endDate, storeId);
         Integer totalCustomers = dashboardRepository.getTotalCustomers(startDate, endDate, storeId);
-        Double avgOrderAmount = (totalOrders > 0) ? (double) totalSales / totalOrders : 0.0;
+        Double avgOrderAmount = (totalOrders != null && totalOrders > 0) ? (double) totalSales / totalOrders : 0.0;
 
         // 2. 성별 비율 조회
         DashboardResponseDto.GenderRatio genderRatio = getGenderRatio(startDate, endDate, storeId);
@@ -147,13 +147,27 @@ public class DashboardService {
     // ===== Private Helper Methods =====
 
     /**
-     * 성별 비율 계산
+     * 성별 비율 계산 (NULL 안전 처리)
      */
     private DashboardResponseDto.GenderRatio getGenderRatio(LocalDate startDate, LocalDate endDate, Long storeId) {
         Map<String, Object> genderStats = dashboardRepository.getGenderStats(startDate, endDate, storeId);
         
-        Integer maleCount = ((Number) genderStats.getOrDefault("maleCount", 0)).intValue();
-        Integer femaleCount = ((Number) genderStats.getOrDefault("femaleCount", 0)).intValue();
+        // NULL 안전 처리
+        Integer maleCount = 0;
+        Integer femaleCount = 0;
+        
+        if (genderStats != null) {
+            Object maleObj = genderStats.get("maleCount");
+            Object femaleObj = genderStats.get("femaleCount");
+            
+            if (maleObj instanceof Number) {
+                maleCount = ((Number) maleObj).intValue();
+            }
+            if (femaleObj instanceof Number) {
+                femaleCount = ((Number) femaleObj).intValue();
+            }
+        }
+        
         Integer totalCount = maleCount + femaleCount;
         
         double malePercentage = totalCount > 0 ? Math.round((double) maleCount / totalCount * 100.0 * 100.0) / 100.0 : 0.0;
@@ -169,13 +183,20 @@ public class DashboardService {
     }
 
     /**
-     * 연령대별 비율 계산
+     * 연령대별 비율 계산 (NULL 안전 처리)
      */
     private List<DashboardResponseDto.AgeGroupRatio> getAgeGroupRatios(LocalDate startDate, LocalDate endDate, Long storeId) {
-        List<Map<String, Object>> ageGroupStats = dashboardRepository.getAgeGroupStats(startDate, endDate, storeId);
+
+        final List<Map<String, Object>> ageGroupStats =
+            java.util.Optional.ofNullable(dashboardRepository.getAgeGroupStats(startDate, endDate, storeId))
+                                .orElseGet(java.util.ArrayList::new);
         
+
         int totalCustomers = ageGroupStats.stream()
-                .mapToInt(stat -> ((Number) stat.get("customerCount")).intValue())
+                .mapToInt(stat -> {
+                    Object count = stat.get("customerCount");
+                    return (count instanceof Number) ? ((Number) count).intValue() : 0;
+                })
                 .sum();
 
         // 연령대 순서 정의
@@ -195,7 +216,11 @@ public class DashboardService {
                             .filter(s -> ageGroup.equals(s.get("ageGroup")))
                             .findFirst();
                     
-                    int count = stat.map(s -> ((Number) s.get("customerCount")).intValue()).orElse(0);
+                    int count = stat.map(s -> {
+                        Object countObj = s.get("customerCount");
+                        return (countObj instanceof Number) ? ((Number) countObj).intValue() : 0;
+                    }).orElse(0);
+                    
                     double percentage = totalCustomers > 0 ? Math.round((double) count / totalCustomers * 100.0 * 100.0) / 100.0 : 0.0;
                     
                     return DashboardResponseDto.AgeGroupRatio.builder()
@@ -215,23 +240,36 @@ public class DashboardService {
     private List<DashboardResponseDto.HourlyData> getHourlyDataList(LocalDate startDate, LocalDate endDate, Long storeId) {
         List<Map<String, Object>> hourlySalesData = dashboardRepository.getHourlySales(startDate, endDate, storeId);
         
+        // NULL 처리
+        if (hourlySalesData == null) {
+            hourlySalesData = new ArrayList<>();
+        }
+        
         // 시간대별 데이터를 Map으로 변환
         Map<Integer, Map<String, Object>> hourlyMap = hourlySalesData.stream()
+                .filter(data -> data.get("hour") instanceof Number)
                 .collect(Collectors.toMap(
                         data -> ((Number) data.get("hour")).intValue(),
-                        data -> data
+                        data -> data,
+                        (existing, replacement) -> existing // 중복 시 기존 값 유지
                 ));
 
         // 10시~16시 범위로 데이터 생성
         return IntStream.rangeClosed(10, 16)
                 .mapToObj(hour -> {
-                    Map<String, Object> data = hourlyMap.getOrDefault(hour, Map.of("amount", 0L, "orderCount", 0));
+                    Map<String, Object> data = hourlyMap.getOrDefault(hour, Collections.emptyMap());
+                    
+                    Object amountObj = data.get("amount");
+                    Object orderCountObj = data.get("orderCount");
+                    
+                    long amount = (amountObj instanceof Number) ? ((Number) amountObj).longValue() : 0L;
+                    int orderCount = (orderCountObj instanceof Number) ? ((Number) orderCountObj).intValue() : 0;
                     
                     return DashboardResponseDto.HourlyData.builder()
                             .hour(hour)
                             .timeLabel(hour + "시")
-                            .amount(((Number) data.getOrDefault("amount", 0)).longValue())
-                            .orderCount(((Number) data.getOrDefault("orderCount", 0)).intValue())
+                            .amount(amount)
+                            .orderCount(orderCount)
                             .build();
                 })
                 .collect(Collectors.toList());
@@ -243,11 +281,18 @@ public class DashboardService {
     private List<DashboardResponseDto.DailyData> getDailyDataList(LocalDate startDate, LocalDate endDate, Long storeId) {
         List<Map<String, Object>> dailySalesData = dashboardRepository.getDailySales(startDate, endDate, storeId);
         
+        // NULL 처리
+        if (dailySalesData == null) {
+            dailySalesData = new ArrayList<>();
+        }
+        
         // 일별 데이터를 Map으로 변환
         Map<LocalDate, Map<String, Object>> dailyMap = dailySalesData.stream()
+                .filter(data -> data.get("saleDate") != null)
                 .collect(Collectors.toMap(
                         data -> ((java.sql.Date) data.get("saleDate")).toLocalDate(),
-                        data -> data
+                        data -> data,
+                        (existing, replacement) -> existing
                 ));
 
         LocalDate today = LocalDate.now();
@@ -255,14 +300,20 @@ public class DashboardService {
         // 기간 내 모든 날짜에 대해 데이터 생성
         return startDate.datesUntil(endDate.plusDays(1))
                 .map(date -> {
-                    Map<String, Object> data = dailyMap.getOrDefault(date, Map.of("amount", 0L, "orderCount", 0));
+                    Map<String, Object> data = dailyMap.getOrDefault(date, Collections.emptyMap());
+                    
+                    Object amountObj = data.get("amount");
+                    Object orderCountObj = data.get("orderCount");
+                    
+                    long amount = (amountObj instanceof Number) ? ((Number) amountObj).longValue() : 0L;
+                    int orderCount = (orderCountObj instanceof Number) ? ((Number) orderCountObj).intValue() : 0;
                     
                     return DashboardResponseDto.DailyData.builder()
                             .date(date)
                             .dateLabel(date.format(DateTimeFormatter.ofPattern("M/d")))
                             .dayOfWeek(getDayOfWeekKorean(date.getDayOfWeek()))
-                            .amount(((Number) data.getOrDefault("amount", 0)).longValue())
-                            .orderCount(((Number) data.getOrDefault("orderCount", 0)).intValue())
+                            .amount(amount)
+                            .orderCount(orderCount)
                             .isToday(date.equals(today))
                             .build();
                 })
@@ -275,17 +326,32 @@ public class DashboardService {
     private List<DashboardResponseDto.PopularMenu> getPopularMenusList(LocalDate startDate, LocalDate endDate, Long storeId, int limit) {
         List<Map<String, Object>> popularMenusData = dashboardRepository.getPopularMenus(startDate, endDate, storeId, limit);
         
+        // NULL 처리
+        if (popularMenusData == null) {
+            return new ArrayList<>();
+        }
+        
         return IntStream.range(0, popularMenusData.size())
                 .mapToObj(index -> {
                     Map<String, Object> data = popularMenusData.get(index);
                     
+                    Object menuIdObj = data.get("menuId");
+                    Object orderCountObj = data.get("orderCount");
+                    Object totalQuantityObj = data.get("totalQuantity");
+                    Object totalSalesObj = data.get("totalSales");
+                    
+                    long menuId = (menuIdObj instanceof Number) ? ((Number) menuIdObj).longValue() : 0L;
+                    int orderCount = (orderCountObj instanceof Number) ? ((Number) orderCountObj).intValue() : 0;
+                    int totalQuantity = (totalQuantityObj instanceof Number) ? ((Number) totalQuantityObj).intValue() : 0;
+                    long totalSales = (totalSalesObj instanceof Number) ? ((Number) totalSalesObj).longValue() : 0L;
+                    
                     return DashboardResponseDto.PopularMenu.builder()
-                            .menuId(((Number) data.get("menuId")).longValue())
+                            .menuId(menuId)
                             .menuName((String) data.get("menuName"))
                             .categoryName((String) data.get("categoryName"))
-                            .orderCount(((Number) data.get("orderCount")).intValue())
-                            .totalQuantity(((Number) data.get("totalQuantity")).intValue())
-                            .totalSales(((Number) data.get("totalSales")).longValue())
+                            .orderCount(orderCount)
+                            .totalQuantity(totalQuantity)
+                            .totalSales(totalSales)
                             .imageUrl((String) data.get("imageUrl"))
                             .rank(index + 1) // 1부터 시작하는 순위
                             .build();

@@ -106,7 +106,7 @@ public class DashboardRepository {
                 m.menu_id as menuId,
                 m.name as menuName,
                 c.name as categoryName,
-                COUNT(oi.order_item_id) as orderCount,
+                COUNT(DISTINCT o.order_id) as orderCount,
                 SUM(oi.quantity) as totalQuantity,
                 SUM(oi.line_amount) as totalSales,
                 m.image_url as imageUrl
@@ -119,7 +119,7 @@ public class DashboardRepository {
             AND m.is_active = 1
             """ + (storeId != null ? "AND o.store_id = ? " : "") + """
             GROUP BY m.menu_id, m.name, c.name, m.image_url
-            ORDER BY totalQuantity DESC, totalSales DESC
+            ORDER BY orderCount DESC, totalQuantity DESC, totalSales DESC
             LIMIT ?
             """;
 
