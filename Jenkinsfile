@@ -54,7 +54,7 @@ pipeline {
       #cp -f "${JAR_PATH}" build/libs/app.jar
       #echo "[INFO] Selected jar: ${JAR_PATH} -> build/libs/app.jar"
 
-      ls -al build/libs/app.jar
+      #ls -al build/libs/app.jar
       #XX 이전 버전 XX
 
 
@@ -66,7 +66,7 @@ pipeline {
 
             echo "[INFO] Using build/libs/app.jar"
             ls -al build/libs/app.jar
-            
+
     '''
       }
     }
