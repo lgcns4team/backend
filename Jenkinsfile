@@ -43,16 +43,30 @@ pipeline {
       echo "[INFO] build/libs output:"
       ls -al build/libs || true
 
+      #XX 이전 버전 XX
       # 실행 가능한 jar를 app.jar로 고정 (plain.jar 제외)
-      JAR_PATH="$(ls -1 build/libs/*.jar | grep -v -- '-plain\\.jar$' | head -n 1 || true)"
-      if [[ -z "${JAR_PATH}" ]]; then
-        echo "[ERROR] No runnable jar found in build/libs"
-        exit 1
-      fi
+      #JAR_PATH="$(ls -1 build/libs/*.jar | grep -v -- '-plain\\.jar$' | head -n 1 || true)"
+      #if [[ -z "${JAR_PATH}" ]]; then
+        #echo "[ERROR] No runnable jar found in build/libs"
+        #exit 1
+      #fi
 
-      cp -f "${JAR_PATH}" build/libs/app.jar
-      echo "[INFO] Selected jar: ${JAR_PATH} -> build/libs/app.jar"
+      #cp -f "${JAR_PATH}" build/libs/app.jar
+      #echo "[INFO] Selected jar: ${JAR_PATH} -> build/libs/app.jar"
+
       ls -al build/libs/app.jar
+      #XX 이전 버전 XX
+
+
+       # app.jar만 사용
+            if [[ ! -f build/libs/app.jar ]]; then
+              echo "[ERROR] build/libs/app.jar not found"
+              exit 1
+            fi
+
+            echo "[INFO] Using build/libs/app.jar"
+            ls -al build/libs/app.jar
+            
     '''
       }
     }
