@@ -12,33 +12,43 @@ RAW_JSON="$(aws secretsmanager get-secret-value \
   --output text \
   --region "${AWS_REGION}")"
 
-# jq는 00_prepare_dirs.sh에서 설치 보장
-DB_URL="$(echo "${RAW_JSON}" | jq -r '.DB_URL')"
-DB_USERNAME="$(echo "${RAW_JSON}" | jq -r '.DB_USERNAME')"
-DB_PASSWORD="$(echo "${RAW_JSON}" | jq -r '.DB_PASSWORD')"
-ENV_NAME="$(echo "${RAW_JSON}" | jq -r '.ENV // "dev"')"
-
-# 필수 값 검증
-if [[ -z "${DB_URL}" || "${DB_URL}" == "null" ]]; then
-  echo "[ERROR] Secret missing DB_URL"
-  exit 1
-fi
-if [[ -z "${DB_USERNAME}" || "${DB_USERNAME}" == "null" ]]; then
-  echo "[ERROR] Secret missing DB_USERNAME"
-  exit 1
-fi
-if [[ -z "${DB_PASSWORD}" || "${DB_PASSWORD}" == "null" ]]; then
-  echo "[ERROR] Secret missing DB_PASSWORD"
+if ! command -v jq >/dev/null 2>&1; then
+  echo "[ERROR] jq not found. Install jq in AMI or user_data."
   exit 1
 fi
 
-# Spring 표준 환경변수로 저장 (로그에 비밀번호 출력 금지)
+DRIVER_NAME="$(echo "${RAW_JSON}" | jq -r '.DRIVER_NAME // empty')"
+DRIVER_URL="$(echo "${RAW_JSON}" | jq -r '.DRIVER_URL // empty')"
+DRIVER_USER_NAME="$(echo "${RAW_JSON}" | jq -r '.DRIVER_USER_NAME // empty')"
+DRIVER_PASSWORD="$(echo "${RAW_JSON}" | jq -r '.DRIVER_PASSWORD // empty')"
+
+missing=0
+if [[ -z "${DRIVER_NAME}" ]]; then
+  echo "[ERROR] Secret missing DRIVER_NAME"
+  missing=1
+fi
+if [[ -z "${DRIVER_URL}" ]]; then
+  echo "[ERROR] Secret missing DRIVER_URL"
+  missing=1
+fi
+if [[ -z "${DRIVER_USER_NAME}" ]]; then
+  echo "[ERROR] Secret missing DRIVER_USER_NAME"
+  missing=1
+fi
+if [[ -z "${DRIVER_PASSWORD}" ]]; then
+  echo "[ERROR] Secret missing DRIVER_PASSWORD"
+  missing=1
+fi
+if [[ "${missing}" -ne 0 ]]; then
+  exit 1
+fi
+
 cat > "${ENV_FILE}" <<EOF
-SPRING_PROFILES_ACTIVE=${ENV_NAME}
-SPRING_DATASOURCE_URL=${DB_URL}
-SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
-SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
+DRIVER_NAME=${DRIVER_NAME}
+DRIVER_URL=${DRIVER_URL}
+DRIVER_USER_NAME=${DRIVER_USER_NAME}
+DRIVER_PASSWORD=${DRIVER_PASSWORD}
 EOF
 
 chmod 600 "${ENV_FILE}"
-echo "[INFO] Wrote env file: ${ENV_FILE} (Spring datasource vars)"
+echo "[INFO] Wrote env file: ${ENV_FILE}"
