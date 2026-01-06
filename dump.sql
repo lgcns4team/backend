@@ -1049,16 +1049,16 @@ CREATE TABLE IF NOT EXISTS `ad_content` (
 
 -- 테이블 데이터 nok_nok.ad_content:~10 rows (대략적) 내보내기
 INSERT INTO `ad_content` (`ad_id`, `title`, `media_type`, `media_url`, `start_date`, `end_date`, `is_active`) VALUES
-	(1, '아침 타임 아메리카노 1+1', 'IMAGE', '/ads/morning_americano_1plus1.png', '2025-12-01', '2025-12-31', 1),
-	(2, '점심 세트 20% 할인', 'IMAGE', '/ads/lunch_set_discount.png', '2025-12-01', '2025-12-31', 1),
-	(3, '시니어 전용 할인', 'IMAGE', '/ads/senior_discount.png', '2025-12-01', '2025-12-31', 1),
-	(4, '디저트 2+1 프로모션', 'IMAGE', '/ads/dessert_2plus1.png', '2025-12-01', '2025-12-15', 1),
-	(5, '신메뉴 출시 - 흑당라떼', 'IMAGE', '/ads/new_menu_brown_sugar.png', '2025-12-01', '2025-12-31', 1),
-	(6, '크리스마스 특별 세트', 'IMAGE', '/ads/christmas_special.png', '2025-12-10', '2025-12-25', 1),
-	(7, '여성 고객 베이커리 할인', 'IMAGE', '/ads/bakery_women_discount.png', '2025-12-01', '2025-12-31', 1),
-	(8, '브런치 메뉴 출시', 'IMAGE', '/ads/brunch_launch.png', '2025-12-01', '2025-12-31', 1),
-	(9, '학생 할인 이벤트', 'IMAGE', '/ads/student_discount.png', '2025-12-01', '2025-12-31', 1),
-	(10, '주말 특별 프로모션', 'IMAGE', '/ads/weekend_special.png', '2025-12-01', '2025-12-31', 1);
+	(1, '블랙핑크 펩시', 'IMAGE', '/images/ads/blackpink_x_pepsi.jpg', '2025-12-01', '2026-12-31', 1),
+	(2, '포카리스웨트', 'IMAGE', '/images/ads/pocari.jpg', '2025-12-01', '2026-12-31', 1),
+	(3, '시니어 전용 할인', 'IMAGE', '/images/ads/senior_discount.png', '2025-12-01', '2026-12-31', 1),
+	(4, 'G63 벤츠', 'IMAGE', '/images/ads/G63_Poster.jpg', '2025-12-01', '2026-12-15', 1),
+	(5, '신메뉴 출시 - 흑당라떼', 'IMAGE', '/images/ads/new_menu_brown_sugar.png', '2025-12-01', '2026-12-31', 1),
+	(6, '크리스마스 특별 세트', 'IMAGE', '/images/ads/christmas_special.png', '2025-12-10', '2026-12-25', 1),
+	(7, '여성 고객 베이커리 할인', 'IMAGE', '/images/ads/bakery_women_discount.png', '2025-12-01', '2026-12-31', 1),
+	(8, '브런치 메뉴 출시', 'IMAGE', '/images/ads/brunch_launch.png', '2025-12-01', '2026-12-31', 1),
+	(9, '학생 할인 이벤트', 'IMAGE', '/images/ads/student_discount.png', '2025-12-01', '2026-12-31', 1),
+	(10, '주말 특별 프로모션', 'IMAGE', '/images/ads/weekend_special.png', '2025-12-01', '2026-12-31', 1);
 
 -- 테이블 nok_nok.ad_target_rule 구조 내보내기
 CREATE TABLE IF NOT EXISTS `ad_target_rule` (
@@ -1073,27 +1073,18 @@ CREATE TABLE IF NOT EXISTS `ad_target_rule` (
 
 -- 테이블 데이터 nok_nok.ad_target_rule:~21 rows (대략적) 내보내기
 INSERT INTO `ad_target_rule` (`rule_id`, `ad_id`, `age_group`, `gender`) VALUES
-	(1, 1, '20대', NULL),
-	(2, 1, '30대', NULL),
-	(3, 1, '40대', NULL),
-	(4, 1, '50대', NULL),
-	(5, 2, '30대', NULL),
-	(6, 2, '40대', NULL),
-	(7, 3, '60대이상', NULL),
-	(8, 4, '20대', 'F'),
-	(9, 4, '30대', 'F'),
-	(10, 5, '20대', NULL),
-	(11, 5, '30대', NULL),
-	(12, 6, '20대', NULL),
-	(13, 6, '30대', NULL),
-	(14, 6, '40대', NULL),
-	(15, 7, '20대', 'F'),
-	(16, 7, '30대', 'F'),
-	(17, 7, '40대', 'F'),
-	(18, 8, '30대', NULL),
-	(19, 8, '40대', NULL),
-	(20, 9, '20대', NULL),
-	(21, 10, NULL, NULL);
+  (1, 1, NULL, NULL),
+	(2, 2, NULL, NULL),
+	(3, 3, '50대이상', NULL),
+	(4, 4, NULL, 'M'),
+	(5, 5, NULL, NULL),
+	(6, 6, NULL, NULL),
+	(7, 7, NULL, 'F'),
+	(8, 8, '20대', NULL),
+	(9, 8, '30대', NULL),
+	(10, 9, '10대', NULL),
+	(11, 9, '20대', NULL),
+	(12, 10, NULL, NULL);
 
 -- 테이블 nok_nok.ad_display_log 구조 내보내기
 CREATE TABLE IF NOT EXISTS `ad_display_log` (
