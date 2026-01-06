@@ -12,11 +12,14 @@ management:
   endpoints:
     web:
       exposure:
-        include: health,info
+        include: health,info,prometheus
   endpoint:
     health:
       probes:
         enabled: true
+  metrics:
+    tags:
+      application: nok-nok-backend
 
 springdoc:
   api-docs:
@@ -25,6 +28,7 @@ springdoc:
   swagger-ui:
     enabled: true
     path: /swagger-ui.html
+
 
 logging:
   level:
