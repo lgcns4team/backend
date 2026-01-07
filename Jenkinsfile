@@ -12,7 +12,7 @@ pipeline {
     ECR_REPO_NAME      = 'bfree-kiosk-backend'
     CODEDEPLOY_APP     = 'nok-nok-dev-codedeploy-app'
     CODEDEPLOY_DG      = 'nok-nok-dev-dg'
-    CODEDEPLOY_BUCKET  = 'bfree-kiosk-codedeploy-313984758699-dev'
+    CODEDEPLOY_BUCKET  = 'bfree-kiosk-codedeploy'
     DEPLOY_S3_PREFIX   = 'codedeploy/nok-nok'
   }
 
