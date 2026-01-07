@@ -10,6 +10,7 @@ services:
       MARIADB_DATABASE: nok_nok
       MARIADB_USER: ${DB_COMPOSE_USER}
       MARIADB_PASSWORD: ${DRIVER_PASSWORD}
+      TZ: Asia/Seoul
     volumes:
       - mariadb:/var/lib/mysql
       - ./dump.sql:/docker-entrypoint-initdb.d/00-dump.sql
@@ -41,6 +42,7 @@ services:
     environment:
       SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/nok_nok
       SPRING_PROFILES_ACTIVE: dev
+      TZ: Asia/Seoul
     depends_on:
       mariadb:
         condition: service_healthy
