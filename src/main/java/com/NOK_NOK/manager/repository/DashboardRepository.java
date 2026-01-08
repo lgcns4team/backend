@@ -224,9 +224,8 @@ public class DashboardRepository {
                     WHEN '20대' THEN 2
                     WHEN '30대' THEN 3
                     WHEN '40대' THEN 4
-                    WHEN '50대' THEN 5
-                    WHEN '60대이상' THEN 6
-                    ELSE 7
+                    WHEN '50대이상' THEN 5
+                    ELSE 6
                 END
             """;
 
