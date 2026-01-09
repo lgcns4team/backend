@@ -31,7 +31,8 @@ public class SecurityConfig {
         //도메인 이름
         corsConfiguration.setAllowedOrigins(List.of(
                 "https://bfree-kiosk.com",
-                "https://www.bfree-kiosk.com"
+                "https://www.bfree-kiosk.com",
+                "http://localhost:5173"
         ));
 
         // corsConfiguration.setAllowedOriginPatterns(List.of(frontURL));

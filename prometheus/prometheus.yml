@@ -1,0 +1,20 @@
+global:
+  scrape_interval: 15s
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["prometheus:9090"]
+
+  - job_name: "springboot"
+    metrics_path: "/nok-nok/actuator/prometheus"
+    static_configs:
+      - targets: ["backend:8080"]
+
+  - job_name: "mysql"
+    static_configs:
+      - targets: ["mysqld_exporter:9104"]
+
+  - job_name: "cadvisor"
+    static_configs:
+      - targets: ["cadvisor:8080"]
