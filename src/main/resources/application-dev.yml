@@ -15,6 +15,18 @@ springdoc:
     enabled: true
     path: /swagger-ui.html
 
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus,metrics
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    tags:
+      application: my-spring-app
+
 logging.level:
   org.hibernate.SQL: debug
   org.hibernate.orm.jdbc.bind: TRACE
