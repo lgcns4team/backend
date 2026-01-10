@@ -77,6 +77,7 @@ public class OrderController {
         log.info("[API] POST /api/orders - storeId: {}, paymentMethod: {}, ageGroup: {}, gender: {}",
                 request.getStoreId(), request.getPaymentMethod(), request.getAgeGroup(), request.getGender());
 
+
         OrderResponseDto.OrderCreated result = orderService.createOrder(request);
 
         return ResponseEntity.ok(result);

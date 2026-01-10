@@ -183,6 +183,7 @@ public class OrderService {
                 .isSeniorMode(request.getIsSeniorMode() != null ? request.getIsSeniorMode() : false)
                 .build();
 
+
         // 세션 저장
         CustomerSessionEntity savedSession = sessionRepository.save(session);
         log.info("[주문 생성] 세션 생성 완료 - sessionId: {}", savedSession.getSessionId());
@@ -204,6 +205,12 @@ public class OrderService {
                 .pgTransactionId(request.getPgTransactionId())
                 .paidAt(LocalDateTime.now())
                 .build();
+
+        //시간대 별 주문 조회 시 날짜는 맞지만 시간이 다른 문제로 인해 로그 확인 작업
+        log.info("[API] POST /api/orders - createOrder Method (Order) Created At >>>>>>>>> {}",
+                order.getCreatedAt());
+        log.info("[API] POST /api/orders - createOrder Method (Order) paid At >>>>>>>>> {}",
+                order.getPaidAt());
 
         // 5. 주문 아이템 생성
         List<OrderResponseDto.OrderItemSummary> orderItemSummaries = new ArrayList<>();
