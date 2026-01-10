@@ -1,0 +1,32 @@
+version: 0.0
+os: linux
+
+files:
+  - source: /
+    destination: /opt/nok-nok-deploy
+    overwrite: true
+
+hooks:
+  BeforeInstall:
+    - location: scripts/00_prepare_dirs.sh
+      timeout: 120
+      runas: root
+    - location: scripts/10_stop_container.sh
+      timeout: 180
+      runas: root
+
+  AfterInstall:
+    - location: scripts/20_login_ecr.sh
+      timeout: 180
+      runas: root
+    - location: scripts/30_fetch_secrets.sh
+      timeout: 180
+      runas: root
+    - location: scripts/40_pull_and_run.sh
+      timeout: 300
+      runas: root
+
+  ValidateService:
+    - location: scripts/90_validate.sh
+      timeout: 180
+      runas: root
