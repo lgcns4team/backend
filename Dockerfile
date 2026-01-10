@@ -4,6 +4,10 @@
 # FROM eclipse-temurin:17-jdk-alpine
 FROM eclipse-temurin:17-jdk
 
+# Production 환경에 시간대(time zone)을 위한 설정
+ENV TZ=Asia/Seoul
+RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
 WORKDIR /app
 
 #ARG JAR_FILE=build/libs/*.jar

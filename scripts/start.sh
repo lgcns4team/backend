@@ -39,6 +39,9 @@ fi
 docker run -d --name "${APP_NAME}" \
   -p 8080:8080 \
   --restart always \
+  -e TZ=Asia/Seoul \
+  -v /etc/localtime:/etc/localtime:ro \
+  -v /etc/timezone:/etc/timezone:ro \
   -e SPRING_PROFILES_ACTIVE="${ENV_NAME}" \
   -e SPRING_DATASOURCE_URL="${DB_URL}" \
   -e SPRING_DATASOURCE_USERNAME="${DB_USERNAME}" \

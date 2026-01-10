@@ -29,7 +29,7 @@ pipeline {
       agent {
         docker {
           image 'gradle:9.2.1-jdk17'
-          args '-u root:root'
+          args '-u root:root -e TZ=Asia/Seoul -v /etc/localtime:/etc/localtime:ro -v /etc/timezone:/etc/timezone:ro'
           reuseNode true
         }
       }
@@ -42,21 +42,6 @@ pipeline {
 
       echo "[INFO] build/libs output:"
       ls -al build/libs || true
-
-      #XX 이전 버전 XX
-      # 실행 가능한 jar를 app.jar로 고정 (plain.jar 제외)
-      #JAR_PATH="$(ls -1 build/libs/*.jar | grep -v -- '-plain\\.jar$' | head -n 1 || true)"
-      #if [[ -z "${JAR_PATH}" ]]; then
-        #echo "[ERROR] No runnable jar found in build/libs"
-        #exit 1
-      #fi
-
-      #cp -f "${JAR_PATH}" build/libs/app.jar
-      #echo "[INFO] Selected jar: ${JAR_PATH} -> build/libs/app.jar"
-
-      #ls -al build/libs/app.jar
-      #XX 이전 버전 XX
-
 
        # app.jar만 사용
             if [[ ! -f build/libs/app.jar ]]; then
@@ -96,7 +81,7 @@ stage('Build & Push Docker Image') {
       ACCOUNT_ID="$(cat .account_id)"
       ECR_URI="${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/${ECR_REPO_NAME}"
 
-      # ✅ GIT_COMMIT이 없을 수 있으므로 안전하게 대체
+      # GIT_COMMIT이 없을 수 있으므로 안전하게 대체
       if [[ -n "${GIT_COMMIT:-}" ]]; then
         IMAGE_TAG="${GIT_COMMIT}"
       else
