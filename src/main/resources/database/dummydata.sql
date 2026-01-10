@@ -521,14 +521,14 @@ INSERT INTO `order_item_option` (`order_item_option_id`, `order_item_id`, `optio
 -- 12. 광고 컨텐츠 (10개)
 -- ============================================
 INSERT INTO `ad_content` (`ad_id`, `title`, `media_type`, `media_url`, `start_date`, `end_date`, `is_active`) VALUES
-(1, '아침 타임 아메리카노 1+1', 'IMAGE', '/ads/morning_americano_1plus1.png', '2025-12-01', '2025-12-31', 1),
-(2, '점심 세트 20% 할인', 'IMAGE', '/ads/lunch_set_discount.png', '2025-12-01', '2025-12-31', 1),
+(1, '블랙핑크 펩시', 'IMAGE', '/ads/blackpink_x_pepsi.jpg', '2025-12-01', '2025-12-31', 1),
+(2, '포카리스웨트', 'IMAGE', '/ads/pocari.jpg', '2025-12-01', '2025-12-31', 1),
 (3, '시니어 전용 할인', 'IMAGE', '/ads/senior_discount.png', '2025-12-01', '2025-12-31', 1),
-(4, '디저트 2+1 프로모션', 'IMAGE', '/ads/dessert_2plus1.png', '2025-12-01', '2025-12-15', 1),
-(5, '신메뉴 출시 - 흑당라떼', 'VIDEO', '/ads/new_menu_brown_sugar.mp4', '2025-12-01', '2025-12-31', 1),
+(4, 'G63 벤츠', 'IMAGE', '/ads/G63 Poster.jpg', '2025-12-01', '2025-12-15', 1),
+(5, '신메뉴 출시 - 흑당라떼', 'IMAGE', '/ads/new_menu_brown_sugar.png', '2025-12-01', '2025-12-31', 1),
 (6, '크리스마스 특별 세트', 'IMAGE', '/ads/christmas_special.png', '2025-12-10', '2025-12-25', 1),
 (7, '여성 고객 베이커리 할인', 'IMAGE', '/ads/bakery_women_discount.png', '2025-12-01', '2025-12-31', 1),
-(8, '브런치 메뉴 출시', 'VIDEO', '/ads/brunch_launch.mp4', '2025-12-01', '2025-12-31', 1),
+(8, '브런치 메뉴 출시', 'IMAGE', '/ads/brunch_launch.png', '2025-12-01', '2025-12-31', 1),
 (9, '학생 할인 이벤트', 'IMAGE', '/ads/student_discount.png', '2025-12-01', '2025-12-31', 1),
 (10, '주말 특별 프로모션', 'IMAGE', '/ads/weekend_special.png', '2025-12-01', '2025-12-31', 1);
 
