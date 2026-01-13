@@ -1,11 +1,11 @@
 # 🍔 AI Smart Kiosk (Backend)
->대상인식과 실시간 대화 기능이 탑재된 스마트 키오스크 프론트엔드 프로젝트입니다.
+>대상 인식·주문·백엔드 API를 담당하는 Spring Boot 기반 **백엔드** 서비스입니다.
 
 ---
 
 ## 🛠️ 협업 버전 관리
-이 프로젝트는 팀원 간의 개발 환경 통일과 배포 안정성을 위해 아래 명시된 버전을 엄격히 준수합니다.
-라이브러리 추가 시 반드시 --save-exact 옵션을 사용하여 버전을 고정해 주세요.
+이 프로젝트는 팀원 간의 개발 환경 통일과 배포 안정성을 위해 아래 명시된 버전을 준수합니다.  
+의존성은 Gradle로 관리합니다. 새 의존성을 추가할 때는 버전을 명시적으로 지정하고, 가능한 경우 Gradle Wrapper(`./gradlew`)로 빌드하세요.
 |기술 스택|Version|비고|
 |:---:|:---:|:---:|
 |Java|JDK 17||
@@ -24,6 +24,27 @@
 
 ---
 
+## ✅ 필수 도구 및 버전
+- **Java**: JDK 17 (프로젝트 toolchain 설정)
+- **Spring Boot**: 4.0.0
+- **Gradle**: wrapper 사용 (gradle-9.2.1, see gradle/wrapper/gradle-wrapper.properties)
+- **MariaDB**: 10.11.15
+- **Redis**: 7.0.15
+- **Docker/Compose**: Docker 28.x, docker compose V2
+
+## ⚠️ 보안 · `.env` 관리
+- 이 저장소의 `docker-compose.yml`은 루트의 `.env` 파일을 참조합니다. 현재 리포지토리에 `.env`가 **커밋**되어 있어 민감정보(비밀번호 등)가 포함되어 있습니다. 즉시 리포지토리에서 제거하고(`git rm --cached .env`) `.env.example`를 사용해 주세요.
+- 권장 `.env.example` 예시 (민감값은 **비워두기**):
+```bash
+# .env.example
+DRIVER_NAME=org.mariadb.jdbc.Driver
+DRIVER_PASSWORD=<YOUR_DB_PASSWORD>
+DB_COMPOSE_ROOT_PASSWORD=<YOUR_ROOT_PASSWORD>
+DB_COMPOSE_USER=noknok_user
+```
+
+---
+
 ## 🐳Docker Compose
 <details>
   <summary>백엔드 DB 환경 자동 구성 </summary>
@@ -37,7 +58,7 @@
   ```
   2. [부가 설명] DB에 데이터가 정상적으로 추가 됐는지 확인
 
-``` bahs
+``` bash
 # Docker가 정상적으로 실행 됐는지 확인
 $ docker ps
 
@@ -126,7 +147,7 @@ PONG
 
 ## 스프링부트 관련 가이드
 <details>
-  <summary>Local 환경에서 IDE(InteliJ) YML Profiles</summary>
+  <summary>Local 환경에서 IDE(IntelliJ) YML Profiles</summary>
   
   - Local, STG, Production 마다 필요한 YML 정보가 다르다.
   - 해당 문제는 Profiles를 지정하여 특정 YML만 사용할 수 있다.
@@ -139,10 +160,10 @@ PONG
 </details>
 
 <details>
-  <summary>InteliJ 테스트에 Lombok 정상 작동 설정</summary>
+  <summary>IntelliJ 테스트에 Lombok 정상 작동 설정</summary>
 
   - 테스트를 진행할 때 Lombok을 사용하지 못하는 경우가 있다.
-  - InteliJ에서 어노테이션 활성화를 체크해야 한다.
+  - IntelliJ에서 어노테이션 활성화를 체크해야 한다.
 
   1. Ctrl + Alt + s로 설정으로 들어가서 검색란에 complie 검색
   2. 어노테이션 처리 활성화 클릭
@@ -154,7 +175,7 @@ PONG
 <details>
   <summary>테스트 YML ENV 파일을 못 읽는 문제</summary>
   
-  ```grovy
+  ``` groovy
   $ Failed to load ApplicationContext for [WebMergedContextConfiguration@76fc5687 testClass = com.NOK_NOK.ApplicationTests, locations = [], classes = [com.NOK_NOK.Application], contextInitializerClasses = [], activeProfiles = ["test"], propertySourceDescriptors = [], propertySourceProperties = ["org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true"], contextCustomizers = [org.springframework.boot.micrometer.metrics.test.autoconfigure.MetricsContextCustomizerFactory$DisableMetricsExportContextCustomizer@1f, org.springframework.boot.webmvc.test.autoconfigure.WebDriverContextCustomizer@49b07ee3, org.springframework.boot.web.server.context.SpringBootTestRandomPortContextCustomizerFactory$Customizer@2424686b, org.springframework.boot.test.autoconfigure.OnFailureConditionReportContextCustomizerFactory$OnFailureConditionReportContextCustomizer@6e78fcf5, org.springframework.boot.test.context.PropertyMappingContextCustomizer@0, org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@417ad4f3, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@7ff2b8d2, org.springframework.test.context.support.DynamicPropertiesContextCustomizer@0, org.springframework.boot.test.context.SpringBootTestAnnotation@4a5aac2], resourceBasePath = "src/main/webapp", contextLoader = org.springframework.boot.test.context.SpringBootContextLoader, parent = null]
 
  $ java.lang.IllegalStateException: Failed to load ApplicationContext for [WebMergedContextConfiguration@76fc5687 testClass = com.NOK_NOK.ApplicationTests, locations = [], classes = [com.NOK_NOK.Application], contextInitializerClasses = [], activeProfiles = ["test"], propertySourceDescriptors = [], propertySourceProperties = ["org.springframework.boot.test.context.SpringBootTestContextBootstrapper=true"], contextCustomizers = [org.springframework.boot.micrometer.metrics.test.autoconfigure.MetricsContextCustomizerFactory$DisableMetricsExportContextCustomizer@1f, org.springframework.boot.webmvc.test.autoconfigure.WebDriverContextCustomizer@49b07ee3, org.springframework.boot.web.server.context.SpringBootTestRandomPortContextCustomizerFactory$Customizer@2424686b, org.springframework.boot.test.autoconfigure.OnFailureConditionReportContextCustomizerFactory$OnFailureConditionReportContextCustomizer@6e78fcf5, org.springframework.boot.test.context.PropertyMappingContextCustomizer@0, org.springframework.boot.test.context.filter.ExcludeFilterContextCustomizer@417ad4f3, org.springframework.boot.test.json.DuplicateJsonObjectContextCustomizerFactory$DuplicateJsonObjectContextCustomizer@7ff2b8d2, org.springframework.test.context.support.DynamicPropertiesContextCustomizer@0, org.springframework.boot.test.context.SpringBootTestAnnotation@4a5aac2], resourceBasePath = "src/main/webapp", contextLoader = org.springframework.boot.test.context.SpringBootContextLoader, parent = null]
@@ -170,7 +191,7 @@ PONG
 
 ## 해결 방법
 - 해당 yml에 env 파일을 끌고 올 수 있게 한다.
-``` grovy
+``` groovy
 # application-test.yml
 spring:
   config:
