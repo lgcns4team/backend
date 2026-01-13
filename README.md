@@ -33,7 +33,7 @@
 - **Docker/Compose**: Docker 28.x, docker compose V2
 
 ## ⚠️ 보안 · `.env` 관리
-- 이 저장소의 `docker-compose.yml`은 루트의 `.env` 파일을 참조합니다. 현재 리포지토리에 `.env`가 **커밋**되어 있어 민감정보(비밀번호 등)가 포함되어 있습니다. 즉시 리포지토리에서 제거하고(`git rm --cached .env`) `.env.example`를 사용해 주세요.
+- 이 저장소의 `docker-compose.yml`은 루트의 `.env` 파일을 참조합니다. `.env.example`를 참고해주세요.
 - 권장 `.env.example` 예시 (민감값은 **비워두기**):
 ```bash
 # .env.example
@@ -198,3 +198,4 @@ spring:
     import: optional:file:.env[.properties]
 ```
 </details>
+
