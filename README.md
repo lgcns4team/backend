@@ -13,12 +13,11 @@
 |Python|Python 3.11.0||
 |Python Server|Fast API 0.111.0||
 |DB|MariaDB 10.11.15|AWS 프리티어 동일|
-|NoSQL|Redis 7.0.15||
 |Linux|Ubuntu 24.04 LTS|AWS 프리티어 동일|
 |Jenkins|2.528.2 LTS||
 |Docker|28.5.1||
-|LLM|?||
-|음성처리 AI|?||
+|LLM|GPT 4o-mini||
+|음성처리 AI|faster-whisper||
 |영상처리 AI|Opencv, Deep Face, Mediapipe[Hand Landmarker]||
 |Camera|Intel Realsense D415 Depth Camera||
 
@@ -29,7 +28,6 @@
 - **Spring Boot**: 4.0.0
 - **Gradle**: wrapper 사용 (gradle-9.2.1, see gradle/wrapper/gradle-wrapper.properties)
 - **MariaDB**: 10.11.15
-- **Redis**: 7.0.15
 - **Docker/Compose**: Docker 28.x, docker compose V2
 
 ## ⚠️ 보안 · `.env` 관리
@@ -97,53 +95,6 @@ $ MariaDB [nok_nok]> select count(*) from orders;
 ```
 </details>
 
-## Redis
-<details>
-  <summary>Redis 사용 추천</summary>
-  
-  ```bash
-#도커로 레디스 7.0.15 컨테이너 실행
-$ docker run -d \
-  --name redis \
-  -p 6379:6379 \
-  redis:7.0.15
-$ docker ps
- CONTAINER ID   IMAGE          COMMAND                  CREATED          STATUS          PORTS                                         NAMES
- 0352f32cdaf6   redis:7.0.15   "docker-entrypoint.s…"   20 seconds ago   Up 20 seconds   0.0.0.0:6379->6379/tcp, [::]:6379->6379/tcp   redis
-
-#잘 작동하는지 도커에 들어가서 핑퐁 테스트
-$ docker exec -it redis redis-cli
-$ 127.0.0.1:6379> ping
- PONG
-  ```
-</details>
-
-<details>
-  <summary> Redis 설치(Ubuntu / Debian 배포/운영 서버) 현재 비추천 </summary> 
-  
-- WSL Ubuntu 환경 설치 및 실행 가이드
-```bash
-# 설치
-$ curl -fsSL https://packages.redis.io/gpg | sudo gpg --dearmor -o /usr/share/keyrings/redis-archive-keyring.gpg
-
-$ echo "deb [signed-by=/usr/share/keyrings/redis-archive-keyring.gpg] https://packages.redis.io/deb $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/redis.list
-
-$ sudo apt-get update
-$ sudo apt-get install redis
-
-# 실행
-$ redis-server --daemonize yes
-
-# Redis 연결
-$ redis-cli
-
-# 연결 테스트
-127.0.0.1:6379> ping
-PONG
-```
-
-</details>
-
 
 ## 스프링부트 관련 가이드
 <details>
@@ -198,4 +149,5 @@ spring:
     import: optional:file:.env[.properties]
 ```
 </details>
+
 
